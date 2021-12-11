@@ -12,15 +12,13 @@
  */
 package com.visus.infrastructure.exception
 
-import org.gradle.api.InvalidUserDataException
-
 
 /**
  *  Base extension for every extension thrown by the extensions provided to Project class
  *
  *  @author Tobias Hahnen
  */
-internal sealed class ProjectExtensionException(message: String) : InvalidUserDataException(message)
+internal sealed class ProjectExtensionException(message: String) : jUnitReportsPluginException(message)
 
 
 /**

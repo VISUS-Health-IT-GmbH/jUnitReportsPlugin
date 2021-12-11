@@ -18,8 +18,7 @@ import java.util.Properties
 import org.gradle.api.Project
 
 import com.visus.infrastructure.jUnitReportsPlugin
-import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
-import com.visus.infrastructure.exception.NoPropertiesProvidedException
+import com.visus.infrastructure.exception.*
 
 
 /**

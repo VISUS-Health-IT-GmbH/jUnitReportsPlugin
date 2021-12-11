@@ -21,7 +21,7 @@ import org.gradle.api.InvalidUserDataException
  *  @author Tobias Hahnen
  */
 @Suppress("kotlin:S101")
-internal sealed class jUnitReportsPluginException(message: String) : InvalidUserDataException(message)
+internal open class jUnitReportsPluginException(message: String) : InvalidUserDataException(message)
 
 
 /**
