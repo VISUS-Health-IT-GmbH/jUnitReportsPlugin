@@ -27,6 +27,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable
 
 import com.visus.infrastructure.exception.*
+import com.visus.infrastructure.tasks.*
 
 
 /**
@@ -35,7 +36,7 @@ import com.visus.infrastructure.exception.*
  *
  *  jUnit test cases on jUnitReportsPlugin
  */
-sealed class jUnitReportsPluginTest {
+open class jUnitReportsPluginTest {
     companion object {
         // path to example properties files in "resources" folder
         private val projectPropertiesPath           = resource("project/1.properties")
@@ -867,8 +868,8 @@ sealed class jUnitReportsPluginTest {
         project.pluginManager.apply(jUnitReportsPlugin::class.java)
 
         // check if subproject tasks were created
-        Assert.assertNotNull(subProject.tasks.findByName(jUnitReportsPlugin.combineJUnitHTMLSubprojectsTaskName))
-        Assert.assertNotNull(subProject.tasks.findByName(jUnitReportsPlugin.combineJUnitXMLSubprojectsTaskName))
+        Assert.assertNotNull(subProject.tasks.findByName(combineJUnitHTMLSubprojectsTaskName))
+        Assert.assertNotNull(subProject.tasks.findByName(combineJUnitXMLSubprojectsTaskName))
     }
 
 
@@ -908,9 +909,9 @@ sealed class jUnitReportsPluginTest {
         project.pluginManager.apply(jUnitReportsPlugin::class.java)
 
         // check if root project tasks were created
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.gatherJUnitHTMLTaskName))
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.gatherJUnitXMLTaskName))
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.createJUnitArchiveTaskName))
+        Assert.assertNotNull(project.tasks.findByName(gatherJUnitHTMLTaskName))
+        Assert.assertNotNull(project.tasks.findByName(gatherJUnitXMLTaskName))
+        Assert.assertNotNull(project.tasks.findByName(createJUnitArchiveTaskName))
     }
 
 
@@ -955,10 +956,10 @@ sealed class jUnitReportsPluginTest {
         project.pluginManager.apply(jUnitReportsPlugin::class.java)
 
         // check if root project tasks were created
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.createJUnitMetadataTaskName))
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.publishNormalJUnitTaskName))
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.publishRCJUnitTaskName))
-        Assert.assertNotNull(project.tasks.findByName(jUnitReportsPlugin.publishJUnitResultsTaskName))
+        Assert.assertNotNull(project.tasks.findByName(createJUnitMetadataTaskName))
+        Assert.assertNotNull(project.tasks.findByName(publishNormalJUnitTaskName))
+        Assert.assertNotNull(project.tasks.findByName(publishRCJUnitTaskName))
+        Assert.assertNotNull(project.tasks.findByName(publishJUnitResultsTaskName))
     }
 
 

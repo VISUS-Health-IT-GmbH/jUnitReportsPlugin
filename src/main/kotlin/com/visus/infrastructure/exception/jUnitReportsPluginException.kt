@@ -36,14 +36,17 @@ internal class PluginWrongAppliedException(message: String) : jUnitReportsPlugin
 internal class JavaPluginMissingException(message: String) : jUnitReportsPluginException(message)
 
 
+/**
+ *  Exception thrown when getPropertyElement function fails but could not call provided exception primary constructor
+ */
 internal class GetPropertyElementException(message: String) : jUnitReportsPluginException(message)
 
 
+/**
+ *  Exception thrown when getProjectExtraPropertyElement function fails but could not call provided exception primary
+ *  constructor
+ */
 internal class GetProjectExtraPropertyElementException(message: String) : jUnitReportsPluginException(message)
-
-
-
-
 
 
 /**
