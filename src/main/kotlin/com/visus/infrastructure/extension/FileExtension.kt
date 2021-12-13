@@ -67,6 +67,8 @@ internal fun File.parseHTMLIgnored() : Int {
 @Throws(HTMLFailedListParserException::class)
 internal fun File.parseHTMLFailedTests() : Set<String> {
     return try {
+        assert(this.parseHTMLFailures() > 0)
+
         val failedTests = mutableSetOf<String>()
 
         Jsoup.parse(this, null).select("#tab0 ul li").forEach {
@@ -92,6 +94,8 @@ internal fun File.parseHTMLFailedTests() : Set<String> {
 @Throws(HTMLIgnoredListParserException::class)
 internal fun File.parseHTMLIgnoredTests() : Set<String> {
     return try {
+        assert(this.parseHTMLIgnored() > 0)
+
         val failedTests = mutableSetOf<String>()
 
         Jsoup.parse(this, null).select("#tab1 ul li").forEach {

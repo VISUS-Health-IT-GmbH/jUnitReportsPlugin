@@ -18,23 +18,23 @@ variables which must have the following structure:
 
 ```properties
 # Path to file of type String
-plugins.resultreporting.properties.path=Path (eg. /var/result/reporting.properties)
+plugins.junitreporting.properties.path=Path (eg. /var/result/reporting.properties)
 
 # Determine separate testing / production servers of type Boolean?
-plugins.resultreporting.properties.isProductionSystem=Boolean or empty
+plugins.junitreporting.properties.isProductionSystem=Boolean or empty
 ```
 
 Otherwise the parameters must be set in the projects own gradle.properties file.
 
 ```properties
 # Path to normal configuration properties file
-plugins.resultreporting.properties.path=Path (eg. /var/result/reporting.properties)
+plugins.junitreporting.properties.path=Path (eg. /var/result/reporting.properties)
 
 # Path to alternate configuration properties file (replaces normal path)
-plugins.resultreporting.properties.alternatePath=Path (eg. /var/result/reporting_alternate.properties)
+plugins.junitreporting.properties.alternatePath=Path (eg. /var/result/reporting_alternate.properties)
 
 # Determine separate testing / production servers (or one single if empty)
-plugins.resultreporting.properties.isProductionSystem=Boolean or empty
+plugins.junitreporting.properties.isProductionSystem=Boolean or empty
 ```
 
 The *reporting.properties* file given by one of the configurations should look like this:

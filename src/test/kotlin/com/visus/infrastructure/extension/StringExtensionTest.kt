@@ -29,7 +29,7 @@ import com.visus.infrastructure.exception.StringExtensionException
  *
  *  jUnit test cases on FileExtension
  */
-class StringExtensionTest {
+open class StringExtensionTest {
     companion object {
         // test class location in Git repository ($buildDir/classes/kotlin/test)
         private val location = this::class.java.protectionDomain.codeSource.location.path

@@ -39,13 +39,13 @@ import com.visus.infrastructure.tasks.*
  *  Plugin adding reporting & validation logic to a Gradle project. Can only be applied to root project!
  */
 @Suppress("kotlin:S101")
-sealed class jUnitReportsPlugin : Plugin<Project> {
+open class jUnitReportsPlugin : Plugin<Project> {
 
     companion object {
         // identifiers of the properties needed by this plugin
-        internal const val KEY_PATH                             = "plugins.resultreporting.properties.path"
-        internal const val KEY_ALTERNATEPATH                    = "plugins.resultreporting.properties.alternatePath"
-        internal const val KEY_ISPRODUCTIONSYSTEM               = "plugins.resultreporting.properties.isProductionSystem"
+        internal const val KEY_PATH                             = "plugins.junitreporting.properties.path"
+        internal const val KEY_ALTERNATEPATH                    = "plugins.junitreporting.properties.alternatePath"
+        internal const val KEY_ISPRODUCTIONSYSTEM               = "plugins.junitreporting.properties.isProductionSystem"
 
         // property names
         internal const val filteringFunctionPropertyName        = "product.filter"

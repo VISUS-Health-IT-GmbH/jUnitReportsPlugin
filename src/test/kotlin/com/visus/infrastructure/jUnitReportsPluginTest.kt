@@ -138,7 +138,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because of no Java plugin applied
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is jUnitReportsPluginException)
+            Assert.assertTrue(e.cause is JavaPluginMissingException)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -156,7 +156,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because of no Java plugin applied
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is jUnitReportsPluginException)
+            Assert.assertTrue(e.cause is NoPropertiesProvidedException)
         }
 
         Assert.assertTrue(project.plugins.hasPlugin(JavaPlugin::class.java))
@@ -179,7 +179,7 @@ open class jUnitReportsPluginTest {
             } catch (e: Exception) {
                 // assert applying did not work because of subproject
                 // INFO: equal to check on InvalidUserDataException as it is based on it
-                assert(e.cause is jUnitReportsPluginException)
+                Assert.assertTrue(e.cause is PluginWrongAppliedException)
             }
 
             Assert.assertFalse(it.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -193,10 +193,10 @@ open class jUnitReportsPluginTest {
         project.pluginManager.apply(JavaPlugin::class.java)
 
         withEnvironmentVariable(
-            "plugins.resultreporting.properties.path", reportingPropertiesPath
+            "plugins.junitreporting.properties.path", reportingPropertiesPath
         ).execute {
             // assert that environment variable is set correctly
-            Assert.assertEquals(reportingPropertiesPath, System.getenv("plugins.resultreporting.properties.path"))
+            Assert.assertEquals(reportingPropertiesPath, System.getenv("plugins.junitreporting.properties.path"))
 
             try {
                 // try applying plugin (should fail)
@@ -204,7 +204,7 @@ open class jUnitReportsPluginTest {
             } catch (e: Exception) {
                 // assert applying did not work because project extra properties missing
                 // INFO: equal to check on InvalidUserDataException as it is based on it
-                assert(e.cause is jUnitReportsPluginException)
+                Assert.assertTrue(e.cause is NoPropertiesFileProvidedException)
             }
 
             Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -218,14 +218,14 @@ open class jUnitReportsPluginTest {
         project.pluginManager.apply(JavaPlugin::class.java)
 
         withEnvironmentVariable(
-            "plugins.resultreporting.properties.path", reportingPropertiesPath
+            "plugins.junitreporting.properties.path", reportingPropertiesPath
         ).and(
-            "plugins.resultreporting.properties.isProductionSystem", ""
+            "plugins.junitreporting.properties.isProductionSystem", ""
         ).execute {
             // assert that environment variables are set correctly
-            Assert.assertEquals(reportingPropertiesPath, System.getenv("plugins.resultreporting.properties.path"))
+            Assert.assertEquals(reportingPropertiesPath, System.getenv("plugins.junitreporting.properties.path"))
             Assert.assertEquals(
-                "", System.getenv("plugins.resultreporting.properties.isProductionSystem")
+                "", System.getenv("plugins.junitreporting.properties.isProductionSystem")
             )
 
             try {
@@ -234,7 +234,7 @@ open class jUnitReportsPluginTest {
             } catch (e: Exception) {
                 // assert applying did not work because project extra properties missing
                 // INFO: equal to check on InvalidUserDataException as it is based on it
-                assert(e.cause is jUnitReportsPluginException)
+                Assert.assertTrue(e.cause is NoPropertiesFileProvidedException)
             }
 
             Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -242,15 +242,15 @@ open class jUnitReportsPluginTest {
 
         val isProductionSystem = true
         withEnvironmentVariable(
-            "plugins.resultreporting.properties.path", reportingPropertiesPath
+            "plugins.junitreporting.properties.path", reportingPropertiesPath
         ).and(
-            "plugins.resultreporting.properties.isProductionSystem", isProductionSystem.toString()
+            "plugins.junitreporting.properties.isProductionSystem", isProductionSystem.toString()
         ).execute {
             // assert that environment variables are set correctly
-            Assert.assertEquals(reportingPropertiesPath, System.getenv("plugins.resultreporting.properties.path"))
+            Assert.assertEquals(reportingPropertiesPath, System.getenv("plugins.junitreporting.properties.path"))
             Assert.assertEquals(
                 isProductionSystem,
-                System.getenv("plugins.resultreporting.properties.isProductionSystem")!!.toBoolean()
+                System.getenv("plugins.junitreporting.properties.isProductionSystem")!!.toBoolean()
             )
 
             try {
@@ -259,7 +259,7 @@ open class jUnitReportsPluginTest {
             } catch (e: Exception) {
                 // assert applying did not work because project extra properties missing
                 // INFO: equal to check on InvalidUserDataException as it is based on it
-                assert(e.cause is jUnitReportsPluginException)
+                Assert.assertTrue(e.cause is NoPropertiesFileProvidedException)
             }
 
             Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -282,7 +282,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -317,8 +317,8 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.alternatePath"] = reporting2PropertiesPath
-        propertiesExtension["plugins.resultreporting.properties.isProductionSystem"] = "true"
+        propertiesExtension["plugins.junitreporting.properties.alternatePath"] = reporting2PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.isProductionSystem"] = "true"
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -353,8 +353,8 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.alternatePath"] = reporting3PropertiesPath
-        propertiesExtension["plugins.resultreporting.properties.isProductionSystem"] = "false"
+        propertiesExtension["plugins.junitreporting.properties.alternatePath"] = reporting3PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.isProductionSystem"] = "false"
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -389,7 +389,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong1PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong1PropertiesPath
 
         try {
             // try applying plugin (should fail)
@@ -419,7 +419,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -459,7 +459,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong2PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong2PropertiesPath
 
         try {
             // try applying plugin (should fail)
@@ -489,7 +489,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -529,7 +529,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong3PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong3PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -569,7 +569,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -609,7 +609,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong4PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong4PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -649,7 +649,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong7PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong7PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -689,7 +689,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong5PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong5PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -729,7 +729,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong6PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong6PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -769,7 +769,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong8PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong8PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -809,7 +809,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingWrong9PropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingWrong9PropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -852,7 +852,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -893,7 +893,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
@@ -940,7 +940,7 @@ open class jUnitReportsPluginTest {
 
         // Must be done this way as the value would change based on the person running this test!
         // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension["plugins.resultreporting.properties.path"] = reportingPropertiesPath
+        propertiesExtension["plugins.junitreporting.properties.path"] = reportingPropertiesPath
 
         /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
         propertiesExtension.set(
