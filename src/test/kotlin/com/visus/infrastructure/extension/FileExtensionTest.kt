@@ -33,7 +33,9 @@ open class FileExtensionTest {
         private val htmlWrong   = resource("html/wrong.html")
 
         /** Simple helper method for resources */
-        private fun resource(path: String) : String = this::class.java.classLoader.getResource(path)!!.path.replace("%20", " ")
+        private fun resource(path: String) : String = this::class.java.classLoader.getResource(path)!!.path.replace(
+            "%20", " "
+        )
     }
 
 
@@ -43,7 +45,7 @@ open class FileExtensionTest {
         try {
             File(htmlWrong).parseHTMLFailures()
         } catch (err: FileExtensionException) {
-            Assert.assertTrue(err is HTMLFailedNumberParserException)
+            Assert.assertEquals(HTMLFailedNumberParserException::class, err::class)
             failed = true
         }
         Assert.assertTrue(failed)
@@ -62,7 +64,7 @@ open class FileExtensionTest {
         try {
             File(htmlWrong).parseHTMLIgnored()
         } catch (err: FileExtensionException) {
-            Assert.assertTrue(err is HTMLIgnoredNumberParserException)
+            Assert.assertEquals(HTMLIgnoredNumberParserException::class, err::class)
             failed = true
         }
         Assert.assertTrue(failed)
@@ -81,7 +83,7 @@ open class FileExtensionTest {
         try {
             File(htmlWrong).parseHTMLFailedTests()
         } catch (err: FileExtensionException) {
-            Assert.assertTrue(err is HTMLFailedListParserException)
+            Assert.assertEquals(HTMLFailedListParserException::class, err::class)
             failed = true
         }
         Assert.assertTrue(failed)
@@ -129,7 +131,7 @@ open class FileExtensionTest {
         try {
             File(htmlWrong).parseHTMLIgnoredTests()
         } catch (err: FileExtensionException) {
-            Assert.assertTrue(err is HTMLIgnoredListParserException)
+            Assert.assertEquals(HTMLIgnoredListParserException::class, err::class)
             failed = true
         }
         Assert.assertTrue(failed)

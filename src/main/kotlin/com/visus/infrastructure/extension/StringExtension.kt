@@ -60,10 +60,10 @@ internal fun String.parsePropertyFunctionName(): Pair<String, String> {
  *  @return absolute path or null
  */
 internal fun String?.tryResolveAbsolutePath(target: Project) : String? = this?.let {
-    listOf(it, "${target.projectDir}$it").forEach { path ->
+    listOf(it, "${target.projectDir}/$it").forEach { path ->
         with (File(path)) {
             when {
-                this.exists() && this.isFile -> this.absolutePath
+                exists() && isFile -> return@let absolutePath
             }
         }
     }

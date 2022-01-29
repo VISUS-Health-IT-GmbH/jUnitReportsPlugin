@@ -49,7 +49,7 @@ open class StringExtensionTest {
         try {
             "Project.filtering.function".parsePropertyFunctionName()
         } catch (err: StringExtensionException) {
-            Assert.assertTrue(err is PropertyValueIncorrectException)
+            Assert.assertEquals(PropertyValueIncorrectException::class, err::class)
             failed = true
         }
         Assert.assertTrue(failed)

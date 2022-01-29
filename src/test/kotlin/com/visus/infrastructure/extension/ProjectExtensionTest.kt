@@ -67,7 +67,7 @@ open class ProjectExtensionTest {
         try {
             project.readProperties(listOf())
         } catch (err: ProjectExtensionException) {
-            Assert.assertTrue(err is NoPropertiesProvidedException)
+            Assert.assertEquals(NoPropertiesProvidedException::class, err::class)
             failed = true
         }
         Assert.assertTrue(failed)
