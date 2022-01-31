@@ -7,6 +7,7 @@
 
 /** 1) Plugins used globally */
 plugins {
+    groovy
     jacoco
 
     `java-gradle-plugin`

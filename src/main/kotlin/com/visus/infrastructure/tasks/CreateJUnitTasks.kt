@@ -61,12 +61,12 @@ internal fun Project.createCreateJUnitResultsArchiveTask(input: String, output: 
  *  Creates the "createJUnitMetadataFile" task in given project
  *
  *  @param output JSON file path
- *  @param productVersion product version
- *  @param productRC product release candidate
+ *  @param productVersion (optional) product version
+ *  @param productRC (optional) product release candidate
  *  @param filteringFunction filtering function for subprojects
  *  @param filteringFunctionGroovy if filtering function is Groovy closure or Kotlin lambda
  */
-internal fun Project.createCreateJUnitMetadataFileTask(output: String, productVersion: String, productRC: String,
+internal fun Project.createCreateJUnitMetadataFileTask(output: String, productVersion: String?, productRC: String?,
                                                        filteringFunction: Any,
                                                        filteringFunctionGroovy: Boolean) = this.tasks.register(
     createJUnitMetadataTaskName
@@ -81,11 +81,11 @@ internal fun Project.createCreateJUnitMetadataFileTask(output: String, productVe
     group = taskGroupPreparation
     val textJSON = jacksonObjectMapper().writeValueAsString(jUnitReportsMetadata(
         System.getProperty("BUILD_NUMBER").toInt(),
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmm")),
         System.getProperty("BRANCH_NAME"),
         System.getProperty("COMMIT_HASH"),
         productVersion,
         productRC,
+        System.getProperty("BUILDSERVER") ?: null,
         this@createCreateJUnitMetadataFileTask.subprojects.filter {
             when(filteringFunctionGroovy) {
                 true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean

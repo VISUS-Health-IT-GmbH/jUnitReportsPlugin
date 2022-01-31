@@ -21,11 +21,11 @@ package com.visus.infrastructure.data
  */
 @Suppress("kotlin:S117")
 data class jUnitReportsMetadata(
-    val id: Int,                // Build id
-    val start: String,          // Build started timestamp
-    val branch: String,         // Branch in repository
-    val git_commit: String,     // Branch in repository last commit hash
-    val version: String,        // Version of repository
-    val rc: String,             // Release candidate of repository
-    val projects: List<String>  // List of subprojects tested using jUnit
+    val id: Int,                // build id
+    val branch: String,         // branch in repository
+    val commit: String,         // commit hash
+    val version: String?,       // (optional) version of repository
+    val rc: String?,            // (optional) release candidate of repository
+    val type: String?,          // (optional) build type
+    val projects: List<String>  // list of subprojects tested using jUnit
 )

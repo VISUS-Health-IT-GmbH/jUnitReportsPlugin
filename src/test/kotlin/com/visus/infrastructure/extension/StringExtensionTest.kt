@@ -73,11 +73,11 @@ open class StringExtensionTest {
 
         // absolute & relative path
         Assert.assertEquals(
-            "${location}com/visus/infrastructure/extension/StringExtensionTest.class",
+            File("${location}com/visus/infrastructure/extension/StringExtensionTest.class").absolutePath,
             "${location}com/visus/infrastructure/extension/StringExtensionTest.class".tryResolveAbsolutePath(project)
         )
         Assert.assertEquals(
-            "${location}com/visus/infrastructure/extension/StringExtensionTest.class",
+            File("${location}com/visus/infrastructure/extension/StringExtensionTest.class").absolutePath,
             "com/visus/infrastructure/extension/StringExtensionTest.class".tryResolveAbsolutePath(project)
         )
     }

@@ -399,7 +399,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because filtering function name is wrong
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is jUnitReportsPluginException)
+            Assert.assertEquals(PropertyValueIncorrectException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -439,7 +439,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because filtering function name is not found
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is FilteringFunctionNotFoundException)
+            Assert.assertEquals(FilteringFunctionNotFoundException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -469,7 +469,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because filtering function name is wrong
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is FilteringFunctionNotGivenException)
+            Assert.assertEquals(FilteringFunctionNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -509,7 +509,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because product version is not found
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is ProductVersionNotFoundException)
+            Assert.assertEquals(ProductVersionNotFoundException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -549,7 +549,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because product version not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is ProductVersionNotGivenException)
+            Assert.assertEquals(ProductVersionNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -589,7 +589,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because product rc is not found
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is ProductRCNotFoundException)
+            Assert.assertEquals(ProductRCNotFoundException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -629,7 +629,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because product rc not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is ProductRCNotGivenException)
+            Assert.assertEquals(ProductRCNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -669,7 +669,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because product patch information not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is ProductVersionIsPatchNotGivenException)
+            Assert.assertEquals(ProductVersionIsPatchNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -709,7 +709,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because REST endpoint not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is EndpointRESTNotGivenException)
+            Assert.assertEquals(EndpointRESTNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -749,7 +749,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because default endpoint template not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is EndpointDefaultTemplateNotGivenException)
+            Assert.assertEquals(EndpointDefaultTemplateNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -789,7 +789,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because version endpoint template not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is EndpointVersionTemplateNotGivenException)
+            Assert.assertEquals(EndpointVersionTemplateNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -829,7 +829,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because patch endpoint template not given
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is EndpointPatchTemplateNotGivenException)
+            Assert.assertEquals(EndpointPatchTemplateNotGivenException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
@@ -976,7 +976,7 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because of no Java plugin applied
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            assert(e.cause is jUnitReportsPluginException)
+            Assert.assertEquals(PluginWrongAppliedException::class, e.cause!!::class)
         }
 
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))

@@ -31,6 +31,7 @@ open class FileExtensionTest {
         // path to example html files in "resources" folder
         private val htmlCorrect = resource("html/correct.html")
         private val htmlWrong   = resource("html/wrong.html")
+        private val htmlWrong2  = resource("html/wrong2.html")
 
         /** Simple helper method for resources */
         private fun resource(path: String) : String = this::class.java.classLoader.getResource(path)!!.path.replace(
@@ -90,7 +91,19 @@ open class FileExtensionTest {
     }
 
 
-    /** 6) Tests on parseHTMLFailedTests method with correct input HTML */
+    /** 6) Tests on parseHTMLFailedTests method with wrong input HTML (assertion failed) */
+    @Test fun testParseHTMLFailedTestsWrong2() {
+        var failed = false
+        try {
+            File(htmlWrong2).parseHTMLFailedTests()
+        } catch (err: AssertionError) {
+            failed = true
+        }
+        Assert.assertTrue(failed)
+    }
+
+
+    /** 7) Tests on parseHTMLFailedTests method with correct input HTML */
     @Test fun testParseHTMLFailedTestsCorrect() {
         val tests = File(htmlCorrect).parseHTMLFailedTests()
         Assert.assertEquals(23, tests.size)
@@ -125,7 +138,7 @@ open class FileExtensionTest {
     }
 
 
-    /** 7) Tests on parseHTMLIgnoredTests method with wrong input HTML */
+    /** 8) Tests on parseHTMLIgnoredTests method with wrong input HTML */
     @Test fun testParseHTMLIgnoredTestsWrong() {
         var failed = false
         try {
@@ -138,7 +151,19 @@ open class FileExtensionTest {
     }
 
 
-    /** 8) Tests on parseHTMLIgnoredTests method with correct input HTML */
+    /** 9) Tests on parseHTMLIgnoredTests method with wrong input HTML (assertion failed) */
+    @Test fun testParseHTMLIgnoredTestsWrong2() {
+        var failed = false
+        try {
+            File(htmlWrong2).parseHTMLIgnoredTests()
+        } catch (err: AssertionError) {
+            failed = true
+        }
+        Assert.assertTrue(failed)
+    }
+
+
+    /** 10) Tests on parseHTMLIgnoredTests method with correct input HTML */
     @Test fun testParseHTMLIgnoredTestsCorrect() {
         val tests = File(htmlCorrect).parseHTMLIgnoredTests()
         Assert.assertEquals(1, tests.size)
