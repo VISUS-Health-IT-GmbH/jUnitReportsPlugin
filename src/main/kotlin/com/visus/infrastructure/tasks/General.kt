@@ -14,5 +14,5 @@ package com.visus.infrastructure.tasks
 
 
 // task groups
-internal const val taskGroupPreparation     = "jUnitReportingPreparation"
-internal const val taskGroupActualReporting = "jUnitReporting"
+internal const val TASK_GROUP_PREPARATION       = "jUnitReportingPreparation"
+internal const val TASK_GROUP_ACTUAL_REPORTING  = "jUnitReporting"

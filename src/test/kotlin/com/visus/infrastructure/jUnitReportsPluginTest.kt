@@ -42,15 +42,15 @@ import com.visus.infrastructure.exception.EndpointRESTNotGivenException
 import com.visus.infrastructure.exception.EndpointDefaultTemplateNotGivenException
 import com.visus.infrastructure.exception.EndpointVersionTemplateNotGivenException
 import com.visus.infrastructure.exception.EndpointPatchTemplateNotGivenException
-import com.visus.infrastructure.tasks.combineJUnitHTMLSubprojectsTaskName
-import com.visus.infrastructure.tasks.combineJUnitXMLSubprojectsTaskName
-import com.visus.infrastructure.tasks.gatherJUnitHTMLTaskName
-import com.visus.infrastructure.tasks.gatherJUnitXMLTaskName
-import com.visus.infrastructure.tasks.createJUnitArchiveTaskName
-import com.visus.infrastructure.tasks.createJUnitMetadataTaskName
-import com.visus.infrastructure.tasks.publishNormalJUnitTaskName
-import com.visus.infrastructure.tasks.publishRCJUnitTaskName
-import com.visus.infrastructure.tasks.publishJUnitResultsTaskName
+import com.visus.infrastructure.tasks.COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME
+import com.visus.infrastructure.tasks.COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME
+import com.visus.infrastructure.tasks.GATHER_JUNIT_HTML_TASK_NAME
+import com.visus.infrastructure.tasks.GATHER_JUNIT_XML_TASK_NAME
+import com.visus.infrastructure.tasks.CREATE_JUNIT_ARCHIVE_TASK_NAME
+import com.visus.infrastructure.tasks.CREATE_JUNIT_METADATA_TASK_NAME
+import com.visus.infrastructure.tasks.PUBLISH_NORMAL_JUNIT_TASK_NAME
+import com.visus.infrastructure.tasks.PUBLISH_RC_JUNIT_TASK_NAME
+import com.visus.infrastructure.tasks.PUBLISH_JUNIT_RESULTS_TASK_NAME
 
 
 /**
@@ -893,8 +893,8 @@ open class jUnitReportsPluginTest {
         project.pluginManager.apply(jUnitReportsPlugin::class.java)
 
         // check if subproject tasks were created
-        Assert.assertNotNull(subProject.tasks.findByName(combineJUnitHTMLSubprojectsTaskName))
-        Assert.assertNotNull(subProject.tasks.findByName(combineJUnitXMLSubprojectsTaskName))
+        Assert.assertNotNull(subProject.tasks.findByName(COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME))
+        Assert.assertNotNull(subProject.tasks.findByName(COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME))
     }
 
 
@@ -934,9 +934,9 @@ open class jUnitReportsPluginTest {
         project.pluginManager.apply(jUnitReportsPlugin::class.java)
 
         // check if root project tasks were created
-        Assert.assertNotNull(project.tasks.findByName(gatherJUnitHTMLTaskName))
-        Assert.assertNotNull(project.tasks.findByName(gatherJUnitXMLTaskName))
-        Assert.assertNotNull(project.tasks.findByName(createJUnitArchiveTaskName))
+        Assert.assertNotNull(project.tasks.findByName(GATHER_JUNIT_HTML_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(GATHER_JUNIT_XML_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(CREATE_JUNIT_ARCHIVE_TASK_NAME))
     }
 
 
@@ -981,10 +981,10 @@ open class jUnitReportsPluginTest {
         project.pluginManager.apply(jUnitReportsPlugin::class.java)
 
         // check if root project tasks were created
-        Assert.assertNotNull(project.tasks.findByName(createJUnitMetadataTaskName))
-        Assert.assertNotNull(project.tasks.findByName(publishNormalJUnitTaskName))
-        Assert.assertNotNull(project.tasks.findByName(publishRCJUnitTaskName))
-        Assert.assertNotNull(project.tasks.findByName(publishJUnitResultsTaskName))
+        Assert.assertNotNull(project.tasks.findByName(CREATE_JUNIT_METADATA_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(PUBLISH_NORMAL_JUNIT_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(PUBLISH_RC_JUNIT_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(PUBLISH_JUNIT_RESULTS_TASK_NAME))
     }
 
 

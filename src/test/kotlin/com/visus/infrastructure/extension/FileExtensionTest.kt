@@ -100,7 +100,7 @@ open class FileExtensionTest {
         var failed = false
         try {
             File(htmlWrong2).parseHTMLFailedTests()
-        } catch (err: AssertionError) {
+        } catch (ignored: AssertionError) {
             failed = true
         }
         Assert.assertTrue(failed)
@@ -160,7 +160,7 @@ open class FileExtensionTest {
         var failed = false
         try {
             File(htmlWrong2).parseHTMLIgnoredTests()
-        } catch (err: AssertionError) {
+        } catch (ignored: AssertionError) {
             failed = true
         }
         Assert.assertTrue(failed)

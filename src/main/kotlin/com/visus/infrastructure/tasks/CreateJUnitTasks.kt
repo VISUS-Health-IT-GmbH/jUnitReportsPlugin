@@ -28,8 +28,8 @@ import com.visus.infrastructure.util.FilteringFunction
 
 
 /** task names of tasks used for creating artifacts */
-internal const val createJUnitArchiveTaskName   = "createJUnitResultsArchive"
-internal const val createJUnitMetadataTaskName  = "createJUnitMetadataFile"
+internal const val CREATE_JUNIT_ARCHIVE_TASK_NAME = "createJUnitResultsArchive"
+internal const val CREATE_JUNIT_METADATA_TASK_NAME = "createJUnitMetadataFile"
 
 
 /**
@@ -39,16 +39,16 @@ internal const val createJUnitMetadataTaskName  = "createJUnitMetadataFile"
  *  @param output ZIP archive path
  */
 internal fun Project.createCreateJUnitResultsArchiveTask(input: String, output: String) = this.tasks.register<Zip>(
-    createJUnitArchiveTaskName
+    CREATE_JUNIT_ARCHIVE_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
 
     // Creating ZIP archive depends on gathering XML files
-    dependsOn(gatherJUnitXMLTaskName)
+    dependsOn(GATHER_JUNIT_XML_TASK_NAME)
 
     // Set necessary task parameters!
-    group = taskGroupPreparation
+    group = TASK_GROUP_PREPARATION
     archiveFileName.set(output)
     destinationDirectory.set(this@createCreateJUnitResultsArchiveTask.projectDir)
     from("${this@createCreateJUnitResultsArchiveTask.buildDir}$input")
@@ -67,16 +67,16 @@ internal fun Project.createCreateJUnitResultsArchiveTask(input: String, output: 
 internal fun Project.createCreateJUnitMetadataFileTask(output: String, productVersion: String?, productRC: String?,
                                                        filteringFunction: Any,
                                                        filteringFunctionGroovy: Boolean) = this.tasks.register(
-    createJUnitMetadataTaskName
+    CREATE_JUNIT_METADATA_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
 
     // Creating metadata depends on creating ZIP archive
-    dependsOn(createJUnitArchiveTaskName)
+    dependsOn(CREATE_JUNIT_ARCHIVE_TASK_NAME)
 
     // Set necessary task parameters!
-    group = taskGroupPreparation
+    group = TASK_GROUP_PREPARATION
     val textJSON = jacksonObjectMapper().writeValueAsString(jUnitReportsMetadata(
         System.getProperty("BUILD_NUMBER").toInt(),
         System.getProperty("BRANCH_NAME"),

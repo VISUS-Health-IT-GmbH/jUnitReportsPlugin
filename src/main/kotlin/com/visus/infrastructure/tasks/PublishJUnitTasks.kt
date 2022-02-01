@@ -30,9 +30,9 @@ import com.visus.infrastructure.jUnitReportsPlugin
 
 
 /** task names of tasks used for publishing jUnit artifacts */
-internal const val publishNormalJUnitTaskName   = "publishJUnitNormal"
-internal const val publishRCJUnitTaskName       = "publishJUnitRC"
-internal const val publishJUnitResultsTaskName  = "publishJUnitResults"
+internal const val PUBLISH_NORMAL_JUNIT_TASK_NAME   = "publishJUnitNormal"
+internal const val PUBLISH_RC_JUNIT_TASK_NAME       = "publishJUnitRC"
+internal const val PUBLISH_JUNIT_RESULTS_TASK_NAME  = "publishJUnitResults"
 
 
 /**
@@ -44,16 +44,16 @@ internal const val publishJUnitResultsTaskName  = "publishJUnitResults"
  */
 internal fun Project.createPublishJUnitNormalTask(zipFileName: String, metadataFileName: String,
                                                   endpointREST: String) = this.tasks.register<Exec>(
-    publishNormalJUnitTaskName
+    PUBLISH_NORMAL_JUNIT_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
 
     // Publishing jUnit artifacts to REST endpoint depends on creating metadata
-    dependsOn(createJUnitMetadataTaskName)
+    dependsOn(CREATE_JUNIT_METADATA_TASK_NAME)
 
     // Set necessary task parameters!
-    group = taskGroupActualReporting
+    group = TASK_GROUP_ACTUAL_REPORTING
     commandLine(
         "cmd", "/C", "curl", "--no-progress-bar",
         "-F", "\"zip_file=@$zipFileName\"", "-F", "\"metadata_file=@$metadataFileName\"",
@@ -77,16 +77,18 @@ internal fun Project.createPublishJUnitNormalTask(zipFileName: String, metadataF
 internal fun Project.createPublishJUnitRCTask(productRC: String, endpointDefaultTemplate: String,
                                               productVersionIsPatch: Boolean, endpointPatchTemplate: String,
                                               endpointVersionTemplate: String,
-                                              productVersion: String) = this.tasks.register(publishRCJUnitTaskName) {
+                                              productVersion: String) = this.tasks.register(
+    PUBLISH_RC_JUNIT_TASK_NAME
+) {
     // Must run again & should only be skipped when RC not valid!
     outputs.upToDateWhen { false }
     onlyIf { productRC.startsWith("RC") && !productRC.endsWith("_build") }
 
     // Publishing jUnit artifacts to folder depends on creating metadata
-    dependsOn(createJUnitMetadataTaskName)
+    dependsOn(CREATE_JUNIT_METADATA_TASK_NAME)
 
     // Set necessary task parameters!
-    group = taskGroupActualReporting
+    group = TASK_GROUP_ACTUAL_REPORTING
 
     // Action that will be performed when task gets created!
     doLast {
@@ -129,7 +131,7 @@ internal fun Project.createPublishJUnitRCTask(productRC: String, endpointDefault
 
                     this@createPublishJUnitRCTask.file(this).absoluteFile.writeText(content, Charset.defaultCharset())
                 }
-            } catch (err: HTMLFailedNumberParserException) {
+            } catch (ignored: HTMLFailedNumberParserException) {
                 this@createPublishJUnitRCTask.file(this).absoluteFile.writeText(
                     "[${this::class.simpleName}] This plugin could not parse the jUnit report index.html " +
                     "file and therefore could not determine if there were failing jUnit tests or not. " +
@@ -179,14 +181,14 @@ internal fun Project.createPublishJUnitRCTask(productRC: String, endpointDefault
 /**
  *  Creates the "publishJUnitResults" task in given project
  */
-internal fun Project.createPublishJunitResultsTask() = this.tasks.register(publishJUnitResultsTaskName) {
+internal fun Project.createPublishJunitResultsTask() = this.tasks.register(PUBLISH_JUNIT_RESULTS_TASK_NAME) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
 
     // Publishing artifacts depends on publish artifacts to REST endpoint and (optionally) to folder
-    dependsOn(publishNormalJUnitTaskName)
-    dependsOn(publishRCJUnitTaskName)
+    dependsOn(PUBLISH_NORMAL_JUNIT_TASK_NAME)
+    dependsOn(PUBLISH_RC_JUNIT_TASK_NAME)
 
     // Set necessary task parameters!
-    group = taskGroupActualReporting
+    group = TASK_GROUP_ACTUAL_REPORTING
 }

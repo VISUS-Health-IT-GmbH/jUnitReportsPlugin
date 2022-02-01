@@ -75,14 +75,14 @@ class jUnitReportsPluginTestGroovy {
 
         project.pluginManager.apply(jUnitReportsPlugin)
 
-        Assert.assertNotNull(project.tasks.findByName(GatherJUnitTasksKt.gatherJUnitHTMLTaskName))
-        Assert.assertNotNull(project.tasks.findByName(GatherJUnitTasksKt.gatherJUnitXMLTaskName))
-        Assert.assertNotNull(project.tasks.findByName(CreateJUnitTasksKt.createJUnitArchiveTaskName))
+        Assert.assertNotNull(project.tasks.findByName(GatherJUnitTasksKt.GATHER_JUNIT_HTML_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(GatherJUnitTasksKt.GATHER_JUNIT_XML_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(CreateJUnitTasksKt.CREATE_JUNIT_ARCHIVE_TASK_NAME))
         Assert.assertNotNull(
-            subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.combineJUnitHTMLSubprojectsTaskName)
+            subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME)
         )
         Assert.assertNotNull(
-            subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.combineJUnitXMLSubprojectsTaskName)
+            subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME)
         )
     }
 }

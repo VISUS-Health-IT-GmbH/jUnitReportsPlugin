@@ -23,8 +23,8 @@ import com.visus.infrastructure.util.FilteringFunction
 
 
 /** task names of tasks used for gathering results in subprojects */
-internal const val gatherJUnitHTMLTaskName  = "gatherJUnitHTMLReports"
-internal const val gatherJUnitXMLTaskName   = "gatherJUnitXMLReports"
+internal const val GATHER_JUNIT_HTML_TASK_NAME  = "gatherJUnitHTMLReports"
+internal const val GATHER_JUNIT_XML_TASK_NAME   = "gatherJUnitXMLReports"
 
 
 /**
@@ -36,7 +36,7 @@ internal const val gatherJUnitXMLTaskName   = "gatherJUnitXMLReports"
  */
 internal fun Project.createGatherJUnitHTMLTask(output: String, filteringFunction: Any,
                                                filteringFunctionGroovy: Boolean) = this.tasks.register<TestReport>(
-    gatherJUnitHTMLTaskName
+    GATHER_JUNIT_HTML_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
@@ -45,7 +45,7 @@ internal fun Project.createGatherJUnitHTMLTask(output: String, filteringFunction
     this@createGatherJUnitHTMLTask.delete("${this@createGatherJUnitHTMLTask.buildDir}${output}")
 
     // Set necessary task parameters!
-    group = taskGroupPreparation
+    group = TASK_GROUP_PREPARATION
     destinationDir = this@createGatherJUnitHTMLTask.file("${this@createGatherJUnitHTMLTask.buildDir}${output}")
     reportOn(
         this@createGatherJUnitHTMLTask.subprojects.filter {
@@ -70,13 +70,13 @@ internal fun Project.createGatherJUnitHTMLTask(output: String, filteringFunction
  */
 internal fun Project.createGatherJUnitXMLTask(input: String, output: String, filteringFunction: Any,
                                               filteringFunctionGroovy: Boolean) = this.tasks.register(
-    gatherJUnitXMLTaskName
+    GATHER_JUNIT_XML_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
 
     // Gathering XML depends on gathering HTML & combining XML in all subprojects
-    dependsOn(gatherJUnitHTMLTaskName)
+    dependsOn(GATHER_JUNIT_HTML_TASK_NAME)
     dependsOn(
         this@createGatherJUnitXMLTask.subprojects.filter {
             when(filteringFunctionGroovy) {
@@ -84,12 +84,12 @@ internal fun Project.createGatherJUnitXMLTask(input: String, output: String, fil
                 false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
             }
         }.map {
-            it.tasks.getByName(combineJUnitXMLSubprojectsTaskName)
+            it.tasks.getByName(COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME)
         }
     )
 
     // Set necessary task parameters!
-    group = taskGroupPreparation
+    group = TASK_GROUP_PREPARATION
 
     // Action that will be performed when task gets created!
     this@createGatherJUnitXMLTask.subprojects.filter {

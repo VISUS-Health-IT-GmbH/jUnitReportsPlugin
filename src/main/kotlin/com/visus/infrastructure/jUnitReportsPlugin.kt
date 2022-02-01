@@ -65,7 +65,7 @@ import com.visus.infrastructure.tasks.createPublishJunitResultsTask
  *
  *  Plugin adding reporting & validation logic to a Gradle project. Can only be applied to root project!
  */
-@Suppress("kotlin:S101")
+@Suppress("kotlin:S101", "ClassNaming")
 open class jUnitReportsPlugin : Plugin<Project> {
 
     companion object {
@@ -275,7 +275,7 @@ open class jUnitReportsPlugin : Plugin<Project> {
         val (part1: String, part2: String) = property.parsePropertyFunctionName()
         try {
             return (target.extra[part1] as Map<*, *>)[part2]!!
-        } catch (err: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") err: Exception) {
             val message = "[${this::class.simpleName}.getProjectExtraPropertyElement] No value for property " +
                             "'${propertyName}' found in root projects extra properties OR another exception " +
                             "occurred: ${err.message}"

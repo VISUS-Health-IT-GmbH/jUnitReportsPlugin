@@ -19,8 +19,8 @@ import org.gradle.kotlin.dsl.register
 
 
 /** task names of tasks only created in subprojects to combine results */
-internal const val combineJUnitHTMLSubprojectsTaskName  = "combineJUnitHTMLReports"
-internal const val combineJUnitXMLSubprojectsTaskName   = "combineJUnitXMLReports"
+internal const val COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME = "combineJUnitHTMLReports"
+internal const val COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME  = "combineJUnitXMLReports"
 
 
 /**
@@ -29,7 +29,7 @@ internal const val combineJUnitXMLSubprojectsTaskName   = "combineJUnitXMLReport
  *  @param output directory for combined HTML files
  */
 internal fun Project.createCombineJUnitHTMLReportsTask(output: String) = this.tasks.register<TestReport>(
-    combineJUnitHTMLSubprojectsTaskName
+    COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
@@ -38,7 +38,7 @@ internal fun Project.createCombineJUnitHTMLReportsTask(output: String) = this.ta
     this@createCombineJUnitHTMLReportsTask.delete("${this@createCombineJUnitHTMLReportsTask.buildDir}$output")
 
     // Set necessary task parameters!
-    group = taskGroupPreparation
+    group = TASK_GROUP_PREPARATION
     destinationDir = this@createCombineJUnitHTMLReportsTask.file(
         "${this@createCombineJUnitHTMLReportsTask.buildDir}$output"
     )
@@ -54,16 +54,16 @@ internal fun Project.createCombineJUnitHTMLReportsTask(output: String) = this.ta
  *  TODO: Don't use "$buildDir/test-results" and each Test task output directory instead!
  */
 internal fun Project.createCombineJUnitXMLReportsTask(output: String) = this.tasks.register(
-    combineJUnitXMLSubprojectsTaskName
+    COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME
 ) {
     // Must run again & should never be skipped!
     outputs.upToDateWhen { false }
 
     // Combining XML depends on combining HTML
-    dependsOn(combineJUnitHTMLSubprojectsTaskName)
+    dependsOn(COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME)
 
     // Set necessary task parameters!
-    group = taskGroupPreparation
+    group = TASK_GROUP_PREPARATION
 
     // Action that will be performed when task gets created!
     this@createCombineJUnitXMLReportsTask.file(

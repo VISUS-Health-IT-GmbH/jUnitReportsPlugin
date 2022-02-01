@@ -10,6 +10,8 @@
  *
  *  -> see LICENCE at root of repository
  */
+@file:Suppress("TooGenericExceptionCaught", "SwallowedException")
+
 package com.visus.infrastructure.extension
 
 import java.io.File
