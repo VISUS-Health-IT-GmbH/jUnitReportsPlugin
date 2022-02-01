@@ -18,8 +18,15 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 
-import com.visus.infrastructure.exception.*
-import com.visus.infrastructure.extension.*
+import com.visus.infrastructure.exception.HTMLFailedListParserException
+import com.visus.infrastructure.exception.HTMLIgnoredNumberParserException
+import com.visus.infrastructure.exception.HTMLFailedNumberParserException
+import com.visus.infrastructure.extension.parseHTMLFailures
+import com.visus.infrastructure.extension.parseHTMLFailedTests
+import com.visus.infrastructure.extension.parseHTMLIgnored
+import com.visus.infrastructure.extension.encodeBranchName
+import com.visus.infrastructure.extension.t
+import com.visus.infrastructure.jUnitReportsPlugin
 
 
 /** task names of tasks used for publishing jUnit artifacts */
@@ -65,7 +72,7 @@ internal fun Project.createPublishJUnitNormalTask(zipFileName: String, metadataF
  *  @param endpointVersionTemplate version folder endpoint path
  *  @param productVersion product version
  *
- *  TODO: Update hole method!
+ *  TODO: Move generating of "failed_junit_tests.txt" to separate task!
  */
 internal fun Project.createPublishJUnitRCTask(productRC: String, endpointDefaultTemplate: String,
                                               productVersionIsPatch: Boolean, endpointPatchTemplate: String,
@@ -80,6 +87,8 @@ internal fun Project.createPublishJUnitRCTask(productRC: String, endpointDefault
 
     // Set necessary task parameters!
     group = taskGroupActualReporting
+
+    // Action that will be performed when task gets created!
     doLast {
         // Check if failed jUnit tests available
         var failedTests = false
@@ -98,21 +107,28 @@ internal fun Project.createPublishJUnitRCTask(productRC: String, endpointDefault
                             content += "- $it\n  Explanation:\n\n"
                         }
                     } catch (err: HTMLFailedListParserException) {
-                        // TODO: Log
+                        this@createPublishJUnitRCTask.logger.info(
+                            "[${jUnitReportsPlugin::class.simpleName} -> Project.createPublishJUnitRCTask] Cannot " +
+                            "parse list of failed jUnit tests from file '$pathToIndex'! See error: ${err.message}"
+                        )
+
                         content += "This plugin could not list them in this file, so you must do it " +
                                     "yourself: Open junit-qa/jUnit.zip -> index.html and sort them out!"
                     }
 
                     try {
-                        content += "\n\nThere were " +
-                                    "${this@createPublishJUnitRCTask.file(pathToIndex).parseHTMLIgnored()} " +
+                        content += "There were ${this@createPublishJUnitRCTask.file(pathToIndex).parseHTMLIgnored()} " +
                                     "ignored jUnit tests as well. You should take a look why they were " +
                                     "skipped / ignored (on purpose?) and maybe reactivate them!"
                     } catch (err: HTMLIgnoredNumberParserException) {
-                        // TODO: Log
+                        this@createPublishJUnitRCTask.logger.info(
+                            "[${jUnitReportsPlugin::class.simpleName} -> Project.createPublishJUnitRCTask] Cannot " +
+                            "parse number of ignored jUnit tests from file '$pathToIndex'! See error: ${err.message}"
+                        )
                     }
-                }
 
+                    this@createPublishJUnitRCTask.file(this).absoluteFile.writeText(content, Charset.defaultCharset())
+                }
             } catch (err: HTMLFailedNumberParserException) {
                 this@createPublishJUnitRCTask.file(this).absoluteFile.writeText(
                     "[${this::class.simpleName}] This plugin could not parse the jUnit report index.html " +

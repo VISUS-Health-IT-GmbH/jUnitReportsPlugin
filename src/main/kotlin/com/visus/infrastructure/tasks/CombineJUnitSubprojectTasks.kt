@@ -62,19 +62,19 @@ internal fun Project.createCombineJUnitXMLReportsTask(output: String) = this.tas
     // Combining XML depends on combining HTML
     dependsOn(combineJUnitHTMLSubprojectsTaskName)
 
-    // Set necessary task parameters including "doLast" action!
+    // Set necessary task parameters!
     group = taskGroupPreparation
-    doLast {
-        this@createCombineJUnitXMLReportsTask.file(
-            "${this@createCombineJUnitXMLReportsTask.buildDir}/test-results"
-        ).listFiles()!!.forEach { folder ->
-            if (folder.isDirectory && folder.listFiles()!!.isNotEmpty()) {
-                this@createCombineJUnitXMLReportsTask.copy {
-                    includeEmptyDirs = false
-                    from(folder.absolutePath)
-                    into("${this@createCombineJUnitXMLReportsTask.buildDir}$output")
-                    exclude("**/binary/**")
-                }
+
+    // Action that will be performed when task gets created!
+    this@createCombineJUnitXMLReportsTask.file(
+        "${this@createCombineJUnitXMLReportsTask.buildDir}/test-results"
+    ).listFiles()?.forEach { folder ->
+        if (folder.isDirectory && folder.listFiles()!!.isNotEmpty()) {
+            this@createCombineJUnitXMLReportsTask.copy {
+                includeEmptyDirs = false
+                from(folder.absolutePath)
+                into("${this@createCombineJUnitXMLReportsTask.buildDir}$output")
+                exclude("**/binary/**")
             }
         }
     }

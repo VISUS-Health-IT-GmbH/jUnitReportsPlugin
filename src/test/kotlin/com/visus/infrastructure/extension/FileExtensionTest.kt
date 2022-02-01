@@ -17,7 +17,11 @@ import java.io.File
 import org.junit.Assert
 import org.junit.Test
 
-import com.visus.infrastructure.exception.*
+import com.visus.infrastructure.exception.FileExtensionException
+import com.visus.infrastructure.exception.HTMLFailedNumberParserException
+import com.visus.infrastructure.exception.HTMLIgnoredNumberParserException
+import com.visus.infrastructure.exception.HTMLFailedListParserException
+import com.visus.infrastructure.exception.HTMLIgnoredListParserException
 
 
 /**

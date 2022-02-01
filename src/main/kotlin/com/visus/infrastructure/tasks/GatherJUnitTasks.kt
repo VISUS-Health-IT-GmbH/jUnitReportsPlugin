@@ -88,20 +88,20 @@ internal fun Project.createGatherJUnitXMLTask(input: String, output: String, fil
         }
     )
 
-    // Set necessary task parameters including "doLast" action!
+    // Set necessary task parameters!
     group = taskGroupPreparation
-    doLast {
-        this@createGatherJUnitXMLTask.subprojects.filter {
-            when(filteringFunctionGroovy) {
-                true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
-                false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
-            }
-        }.forEach {
-            this@createGatherJUnitXMLTask.copy {
-                includeEmptyDirs = false
-                from("${it.buildDir}${input}")
-                into("${this@createGatherJUnitXMLTask.buildDir}$output/${it.name}")
-            }
+
+    // Action that will be performed when task gets created!
+    this@createGatherJUnitXMLTask.subprojects.filter {
+        when(filteringFunctionGroovy) {
+            true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
+            false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
+        }
+    }.forEach {
+        this@createGatherJUnitXMLTask.copy {
+            includeEmptyDirs = false
+            from("${it.buildDir}${input}")
+            into("${this@createGatherJUnitXMLTask.buildDir}$output/${it.name}")
         }
     }
 }

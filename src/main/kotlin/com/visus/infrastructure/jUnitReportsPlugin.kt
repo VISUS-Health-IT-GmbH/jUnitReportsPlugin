@@ -24,10 +24,37 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.extra
 
-import com.visus.infrastructure.exception.*
-import com.visus.infrastructure.extension.*
+import com.visus.infrastructure.exception.PluginWrongAppliedException
+import com.visus.infrastructure.exception.JavaPluginMissingException
+import com.visus.infrastructure.exception.FilteringFunctionNotGivenException
+import com.visus.infrastructure.exception.FilteringFunctionNotFoundException
+import com.visus.infrastructure.exception.ProductVersionNotGivenException
+import com.visus.infrastructure.exception.ProductVersionNotFoundException
+import com.visus.infrastructure.exception.ProductRCNotGivenException
+import com.visus.infrastructure.exception.ProductRCNotFoundException
+import com.visus.infrastructure.exception.ProductVersionIsPatchNotGivenException
+import com.visus.infrastructure.exception.ProductVersionIsPatchNotFoundException
+import com.visus.infrastructure.exception.EndpointRESTNotGivenException
+import com.visus.infrastructure.exception.EndpointDefaultTemplateNotGivenException
+import com.visus.infrastructure.exception.EndpointVersionTemplateNotGivenException
+import com.visus.infrastructure.exception.EndpointPatchTemplateNotGivenException
+import com.visus.infrastructure.exception.jUnitReportsPluginException
+import com.visus.infrastructure.exception.GetPropertyElementException
+import com.visus.infrastructure.exception.GetProjectExtraPropertyElementException
+import com.visus.infrastructure.extension.readProperties
+import com.visus.infrastructure.extension.readPropertiesFromFile
+import com.visus.infrastructure.extension.t
+import com.visus.infrastructure.extension.parsePropertyFunctionName
 import com.visus.infrastructure.util.FilteringFunction
-import com.visus.infrastructure.tasks.*
+import com.visus.infrastructure.tasks.createCombineJUnitHTMLReportsTask
+import com.visus.infrastructure.tasks.createCombineJUnitXMLReportsTask
+import com.visus.infrastructure.tasks.createGatherJUnitHTMLTask
+import com.visus.infrastructure.tasks.createGatherJUnitXMLTask
+import com.visus.infrastructure.tasks.createCreateJUnitResultsArchiveTask
+import com.visus.infrastructure.tasks.createCreateJUnitMetadataFileTask
+import com.visus.infrastructure.tasks.createPublishJUnitNormalTask
+import com.visus.infrastructure.tasks.createPublishJUnitRCTask
+import com.visus.infrastructure.tasks.createPublishJunitResultsTask
 
 
 /**

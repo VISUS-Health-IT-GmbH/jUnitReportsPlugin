@@ -26,8 +26,31 @@ import org.gradle.testfixtures.ProjectBuilder
 
 import com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable
 
-import com.visus.infrastructure.exception.*
-import com.visus.infrastructure.tasks.*
+import com.visus.infrastructure.exception.JavaPluginMissingException
+import com.visus.infrastructure.exception.NoPropertiesProvidedException
+import com.visus.infrastructure.exception.PluginWrongAppliedException
+import com.visus.infrastructure.exception.FilteringFunctionNotFoundException
+import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
+import com.visus.infrastructure.exception.PropertyValueIncorrectException
+import com.visus.infrastructure.exception.FilteringFunctionNotGivenException
+import com.visus.infrastructure.exception.ProductVersionNotFoundException
+import com.visus.infrastructure.exception.ProductVersionNotGivenException
+import com.visus.infrastructure.exception.ProductRCNotFoundException
+import com.visus.infrastructure.exception.ProductRCNotGivenException
+import com.visus.infrastructure.exception.ProductVersionIsPatchNotGivenException
+import com.visus.infrastructure.exception.EndpointRESTNotGivenException
+import com.visus.infrastructure.exception.EndpointDefaultTemplateNotGivenException
+import com.visus.infrastructure.exception.EndpointVersionTemplateNotGivenException
+import com.visus.infrastructure.exception.EndpointPatchTemplateNotGivenException
+import com.visus.infrastructure.tasks.combineJUnitHTMLSubprojectsTaskName
+import com.visus.infrastructure.tasks.combineJUnitXMLSubprojectsTaskName
+import com.visus.infrastructure.tasks.gatherJUnitHTMLTaskName
+import com.visus.infrastructure.tasks.gatherJUnitXMLTaskName
+import com.visus.infrastructure.tasks.createJUnitArchiveTaskName
+import com.visus.infrastructure.tasks.createJUnitMetadataTaskName
+import com.visus.infrastructure.tasks.publishNormalJUnitTaskName
+import com.visus.infrastructure.tasks.publishRCJUnitTaskName
+import com.visus.infrastructure.tasks.publishJUnitResultsTaskName
 
 
 /**

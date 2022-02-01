@@ -17,7 +17,10 @@ import java.io.File
 import org.jsoup.Jsoup
 
 import com.visus.infrastructure.jUnitReportsPlugin
-import com.visus.infrastructure.exception.*
+import com.visus.infrastructure.exception.HTMLFailedNumberParserException
+import com.visus.infrastructure.exception.HTMLIgnoredNumberParserException
+import com.visus.infrastructure.exception.HTMLFailedListParserException
+import com.visus.infrastructure.exception.HTMLIgnoredListParserException
 
 
 /**
