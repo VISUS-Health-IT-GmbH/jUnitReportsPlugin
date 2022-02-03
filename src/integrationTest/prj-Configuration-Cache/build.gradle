@@ -1,0 +1,20 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("com.visus.infrastructure:jUnitReportsPlugin:+") { changing(true) }
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+apply(from: "gradle/init.gradle")
+apply(plugin: "com.visus.infrastructure.junitreports")
+
+group 'com.visus.infrastructure'
+version '1.0.0'

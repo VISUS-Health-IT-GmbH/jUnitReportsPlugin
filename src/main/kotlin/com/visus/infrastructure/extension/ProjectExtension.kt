@@ -60,12 +60,13 @@ internal fun Project.readProperties(keys: List<String>) : Properties {
  *  @return value if found, else null
  */
 internal fun Project.resolvePropertyKey(key: String) : Any? {
-    return System.getenv(key) ?: run {
-        when {
-            System.getProperties().containsKey(key)         -> System.getProperty(key)
-            this.properties.containsKey(key)                -> this.properties[key]
-            else                                            -> null
-        }
+    return when {
+        this.providers.environmentVariable(key).forUseAtConfigurationTime().isPresent
+            -> this.providers.environmentVariable(key).forUseAtConfigurationTime().get()
+        this.providers.systemProperty(key).forUseAtConfigurationTime().isPresent
+            -> this.providers.systemProperty(key).forUseAtConfigurationTime().get()
+        this.properties.containsKey(key)    -> this.properties[key]
+        else                                -> null
     }
 }
 

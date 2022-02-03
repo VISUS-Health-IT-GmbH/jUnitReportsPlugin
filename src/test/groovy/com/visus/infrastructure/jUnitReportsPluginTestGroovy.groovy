@@ -18,10 +18,13 @@ import org.junit.Test
 
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.testfixtures.ProjectBuilder
 
 @SuppressWarnings("unused")
 import com.visus.infrastructure.jUnitReportsPlugin
+import com.visus.infrastructure.tasks.CleanJUnitArtifactsTask
+import com.visus.infrastructure.tasks.CleanJUnitArtifactsTaskKt
 import com.visus.infrastructure.tasks.CombineJUnitSubprojectTasksKt
 import com.visus.infrastructure.tasks.CreateJUnitTasksKt
 import com.visus.infrastructure.tasks.GatherJUnitTasksKt
@@ -84,5 +87,38 @@ class jUnitReportsPluginTestGroovy {
         Assert.assertNotNull(
             subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME)
         )
+    }
+
+
+    /** 2) Evaluates that "clean" task depends on "cleanJUnitArtifacts" */
+    @Test void testEvaluateCleanDependsOn() {
+        def project = ProjectBuilder.builder().build()
+        def subProject = ProjectBuilder.builder().withParent(project).build()
+
+        project.pluginManager.apply(JavaPlugin)
+
+        def propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension)
+        projectProperties.each {
+            propertiesExtension.set(it.key as String, it.value)
+        }
+
+        propertiesExtension.set(jUnitReportsPlugin.KEY_PATH, reportingPropertiesPath)
+
+        propertiesExtension.VISUS = [
+                "filterJUnitProjects" : { String projectName -> true },
+                "version" : "5.3.1",
+                "rc" : "RC01",
+                "patch" : true
+        ]
+
+        project.pluginManager.apply(jUnitReportsPlugin)
+
+        def clean = project.tasks.getByPath("clean")
+        def cleanArtifact = project.tasks.getByName(
+            CleanJUnitArtifactsTaskKt.CLEAN_ARTIFACT_TASK_NAME
+        ) as CleanJUnitArtifactsTask
+
+        Assert.assertEquals(1, clean.dependsOn.size())
+        Assert.assertEquals(cleanArtifact, (clean.dependsOn[0] as TaskProvider).get())
     }
 }

@@ -23,6 +23,7 @@ import org.gradle.kotlin.dsl.register
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import com.visus.infrastructure.data.jUnitReportsMetadata
+import com.visus.infrastructure.extension.t
 import com.visus.infrastructure.util.FilteringFunction
 
 
@@ -78,12 +79,17 @@ internal fun Project.createCreateJUnitMetadataFileTask(output: String, productVe
     // Set necessary task parameters!
     group = TASK_GROUP_PREPARATION
     val textJSON = jacksonObjectMapper().writeValueAsString(jUnitReportsMetadata(
-        System.getProperty("BUILD_NUMBER").toInt(),
-        System.getProperty("BRANCH_NAME"),
-        System.getProperty("COMMIT_HASH"),
+        this@createCreateJUnitMetadataFileTask.providers.systemProperty("BUILD_NUMBER")
+            .forUseAtConfigurationTime().get().toInt(),
+        this@createCreateJUnitMetadataFileTask.providers.systemProperty("BRANCH_NAME")
+            .forUseAtConfigurationTime().get(),
+        this@createCreateJUnitMetadataFileTask.providers.systemProperty("COMMIT_HASH")
+            .forUseAtConfigurationTime().get(),
         productVersion,
         productRC,
-        System.getProperty("BUILDSERVER") ?: null,
+        this@createCreateJUnitMetadataFileTask.providers.systemProperty("BUILDSERVER").forUseAtConfigurationTime().isPresent
+            t this@createCreateJUnitMetadataFileTask.providers.systemProperty("BUILDSERVER").forUseAtConfigurationTime().get()
+            ?: null,
         this@createCreateJUnitMetadataFileTask.subprojects.filter {
             when(filteringFunctionGroovy) {
                 true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean

@@ -1,0 +1,17 @@
+# IntelliJ IDEA files & folder
+.idea/
+
+# Gradle files & folder
+.gradle/
+/build/
+
+# macOS files & folder
+.DS_Store
+
+# I-dont-know
+/logs/
+
+# jUnitReportsPlugin artifacts
+jUnit.json
+jUnit.zip
+failed_junit_tests.txt

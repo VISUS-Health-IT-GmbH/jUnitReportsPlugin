@@ -19,7 +19,7 @@ package com.visus.infrastructure.data
  *
  *  Data class containing all necessary information written to the metadata file "jUnit.json"
  */
-@Suppress("kotlin:S117", "ClassNaming")
+@Suppress("kotlin:S101", "ClassNaming")
 data class jUnitReportsMetadata(
     val id: Int,                // build id
     val branch: String,         // branch in repository

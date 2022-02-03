@@ -23,6 +23,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.extra
+// SonarLint false-positive: kotlin:S1128
+import org.gradle.kotlin.dsl.register
 
 import com.visus.infrastructure.exception.PluginWrongAppliedException
 import com.visus.infrastructure.exception.JavaPluginMissingException
@@ -45,16 +47,17 @@ import com.visus.infrastructure.extension.readProperties
 import com.visus.infrastructure.extension.readPropertiesFromFile
 import com.visus.infrastructure.extension.t
 import com.visus.infrastructure.extension.parsePropertyFunctionName
-import com.visus.infrastructure.util.FilteringFunction
+import com.visus.infrastructure.tasks.*
 import com.visus.infrastructure.tasks.createCombineJUnitHTMLReportsTask
 import com.visus.infrastructure.tasks.createCombineJUnitXMLReportsTask
+import com.visus.infrastructure.tasks.createCreateJUnitMetadataFileTask
+import com.visus.infrastructure.tasks.createCreateJUnitResultsArchiveTask
 import com.visus.infrastructure.tasks.createGatherJUnitHTMLTask
 import com.visus.infrastructure.tasks.createGatherJUnitXMLTask
-import com.visus.infrastructure.tasks.createCreateJUnitResultsArchiveTask
-import com.visus.infrastructure.tasks.createCreateJUnitMetadataFileTask
 import com.visus.infrastructure.tasks.createPublishJUnitNormalTask
 import com.visus.infrastructure.tasks.createPublishJUnitRCTask
 import com.visus.infrastructure.tasks.createPublishJunitResultsTask
+import com.visus.infrastructure.util.FilteringFunction
 
 
 /**
@@ -67,7 +70,6 @@ import com.visus.infrastructure.tasks.createPublishJunitResultsTask
  */
 @Suppress("kotlin:S101", "ClassNaming")
 open class jUnitReportsPlugin : Plugin<Project> {
-
     companion object {
         // identifiers of the properties needed by this plugin
         internal const val KEY_PATH                             = "plugins.junitreporting.properties.path"
@@ -178,15 +180,9 @@ open class jUnitReportsPlugin : Plugin<Project> {
         )
 
         // 14) extend "clean" Task of root project
-        target.tasks.getByName("clean") {
-            doFirst {
-                target.delete(
-                    "${target.projectDir}/jUnit.json",
-                    "${target.projectDir}/jUnit.zip",
-                    "${target.projectDir}/failed_junit_tests.txt"
-                )
-            }
-        }
+        target.tasks.getByName("clean").dependsOn(
+            target.tasks.register<CleanJUnitArtifactsTask>(CLEAN_ARTIFACT_TASK_NAME) { group = TASK_GROUP_PREPARATION }
+        )
 
         // 15) configure filtered subproject
         target.subprojects.filter {
@@ -207,7 +203,7 @@ open class jUnitReportsPlugin : Plugin<Project> {
         target.createCreateJUnitResultsArchiveTask("/jUnit", "jUnit.zip")
 
         // 17) configure root project (only on build server)
-        if (System.getProperties().containsKey("BUILDSERVER")) {
+        if (target.providers.systemProperty("BUILDSERVER").forUseAtConfigurationTime().isPresent) {
             // createJUnitMetadataFile & publishJUnitNormal & publishJUnitRC & publishJUnitResults
             target.createCreateJUnitMetadataFileTask(
                 "/jUnit.json", productVersion, productRC, filteringFunction, filteringFunctionGroovy
