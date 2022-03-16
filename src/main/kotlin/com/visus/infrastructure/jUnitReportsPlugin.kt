@@ -12,17 +12,11 @@
  */
 package com.visus.infrastructure
 
-import java.util.Properties
-
-import kotlin.reflect.KClass
-import kotlin.reflect.full.primaryConstructor
-
 import groovy.lang.Closure
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.kotlin.dsl.extra
 // SonarLint false-positive: kotlin:S1128
 import org.gradle.kotlin.dsl.register
 
@@ -40,24 +34,41 @@ import com.visus.infrastructure.exception.EndpointRESTNotGivenException
 import com.visus.infrastructure.exception.EndpointDefaultTemplateNotGivenException
 import com.visus.infrastructure.exception.EndpointVersionTemplateNotGivenException
 import com.visus.infrastructure.exception.EndpointPatchTemplateNotGivenException
-import com.visus.infrastructure.exception.jUnitReportsPluginException
-import com.visus.infrastructure.exception.GetPropertyElementException
-import com.visus.infrastructure.exception.GetProjectExtraPropertyElementException
+
+import com.visus.infrastructure.extension.getProjectExtraPropertyElement
+import com.visus.infrastructure.extension.getPropertyElement
 import com.visus.infrastructure.extension.readProperties
 import com.visus.infrastructure.extension.readPropertiesFromFile
-import com.visus.infrastructure.extension.t
-import com.visus.infrastructure.extension.parsePropertyFunctionName
-import com.visus.infrastructure.tasks.*
-import com.visus.infrastructure.tasks.createCombineJUnitHTMLReportsTask
-import com.visus.infrastructure.tasks.createCombineJUnitXMLReportsTask
-import com.visus.infrastructure.tasks.createCreateJUnitMetadataFileTask
-import com.visus.infrastructure.tasks.createCreateJUnitResultsArchiveTask
-import com.visus.infrastructure.tasks.createGatherJUnitHTMLTask
-import com.visus.infrastructure.tasks.createGatherJUnitXMLTask
-import com.visus.infrastructure.tasks.createPublishJUnitNormalTask
-import com.visus.infrastructure.tasks.createPublishJUnitRCTask
-import com.visus.infrastructure.tasks.createPublishJunitResultsTask
+
+import com.visus.infrastructure.tasks.CLEAN_ARTIFACT_TASK_NAME
+import com.visus.infrastructure.tasks.CleanArtifactsTask
+
+import com.visus.infrastructure.tasks.combining.JUNIT_HTML_RESULTS_TASK_NAME
+import com.visus.infrastructure.tasks.combining.JUNIT_XML_RESULTS_TASK_NAME
+import com.visus.infrastructure.tasks.combining.JUnitHTMLResultsTask
+import com.visus.infrastructure.tasks.combining.JUnitXMLResultsTask
+
+import com.visus.infrastructure.tasks.gathering.JUNIT_HTML_REPORTS_TASK_NAME
+import com.visus.infrastructure.tasks.gathering.JUNIT_XML_REPORTS_TASK_NAME
+import com.visus.infrastructure.tasks.gathering.JUnitHTMLReportsTask
+import com.visus.infrastructure.tasks.gathering.JUnitXMLReportsTask
+
+import com.visus.infrastructure.tasks.artifacts.RESULTS_ARCHIVE_TASK_NAME
+import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_TASK_NAME
+import com.visus.infrastructure.tasks.artifacts.METADATA_TASK_NAME
+import com.visus.infrastructure.tasks.artifacts.ResultsArchiveTask
+import com.visus.infrastructure.tasks.artifacts.FailedJUnitTestsTask
+import com.visus.infrastructure.tasks.artifacts.MetadataTask
+
+import com.visus.infrastructure.tasks.publishing.JUNIT_REST_SEND_TASK_NAME
+import com.visus.infrastructure.tasks.publishing.JUNIT_RC_SAVE_TASK_NAME
+import com.visus.infrastructure.tasks.publishing.JUNIT_FINAL_TASK_NAME
+import com.visus.infrastructure.tasks.publishing.JUnitRESTSendTask
+import com.visus.infrastructure.tasks.publishing.JUnitRCSaveTask
+import com.visus.infrastructure.tasks.publishing.JUnitFinalTask
+
 import com.visus.infrastructure.util.FilteringFunction
+import com.visus.infrastructure.util.resolvePrefix
 
 
 /**
@@ -106,52 +117,42 @@ open class jUnitReportsPlugin : Plugin<Project> {
             )
         }
 
-        // 3) read properties (including key / values) from project's "gradle.properties" file
-        var properties = target.readProperties(
-            listOf(KEY_PATH, KEY_ALTERNATEPATH, KEY_ISPRODUCTIONSYSTEM)
-        )
+        // 3) read properties (including key / values) from project's "gradle.properties" file + resolve prefix
+        var properties = target.readProperties(listOf(KEY_PATH, KEY_ALTERNATEPATH, KEY_ISPRODUCTIONSYSTEM))
+        val prefix : String = resolvePrefix(properties, KEY_ISPRODUCTIONSYSTEM)
 
-        // 4) determine if different separate test / production system
-        val prefix : String = properties[KEY_ISPRODUCTIONSYSTEM]?.let {
-            val value : String = it as String
-            when {
-                value.isBlank() || value == KEY_ISPRODUCTIONSYSTEM  -> ""
-                else                                                -> value.toBoolean() t "PRODUCTIVE." ?: "TESTING."
-            }
-        } ?: ""
-
-        // 5) read values from given file(s)
+        // 4) read values from given file(s)
         properties = target.readPropertiesFromFile(
             properties, listOf(KEY_ALTERNATEPATH, KEY_PATH)
         )
 
-        // 6) get filtering function for later use
+        // 5) get filtering function for later use
         var filteringFunctionGroovy = false
-        val filteringFunction: Any = getProjectExtraPropertyElement(
-            target, properties, prefix + filteringFunctionPropertyName,
+        val filteringFunction: Any = target.getProjectExtraPropertyElement(
+            properties, prefix + filteringFunctionPropertyName,
             FilteringFunctionNotGivenException::class, FilteringFunctionNotFoundException::class
         )
         try {
             @Suppress("UNUSED_VARIABLE")
             val testFunction = filteringFunction as Closure<*>
             filteringFunctionGroovy = true
-        } catch (ignored: Exception) {}
+        } catch (ignored: Exception) { /* NOSONAR */ }
 
-        // 7) get product version for later use
-        val productVersion = getProjectExtraPropertyElement(
-            target, properties, prefix + productVersionPropertyName,
+        // 6) get product version for later use
+        val productVersion = target.getProjectExtraPropertyElement(
+            properties, prefix + productVersionPropertyName,
             ProductVersionNotGivenException::class, ProductVersionNotFoundException::class
         ) as String
 
-        // 8) get product release candidate for later use
-        val productRC = getProjectExtraPropertyElement(
-            target, properties, prefix + productRCPropertyName,
+        // 7) get product release candidate for later use
+        val productRC = target.getProjectExtraPropertyElement(
+            properties, prefix + productRCPropertyName,
             ProductRCNotGivenException::class, ProductRCNotFoundException::class
         ) as String
 
-        // 9) get product version is patch for saving to network share
-        var productVersionIsPatch = getProjectExtraPropertyElement(
-            target, properties, prefix + productVersionIsPatch,
+        // 8) get product version is patch for saving to network share
+        var productVersionIsPatch = target.getProjectExtraPropertyElement(
+            properties, prefix + productVersionIsPatch,
             ProductVersionIsPatchNotGivenException::class, ProductVersionIsPatchNotFoundException::class
         )
         productVersionIsPatch = when (productVersionIsPatch) {
@@ -159,32 +160,32 @@ open class jUnitReportsPlugin : Plugin<Project> {
             else        -> productVersionIsPatch.toString().toBoolean()
         }
 
-        // 10) get REST API endpoint of jUnit backend
-        val endpointREST = getPropertyElement(
-            properties, prefix + endpointRESTPropertyName, EndpointRESTNotGivenException::class
+        // 9) get REST API endpoint of jUnit backend
+        val endpointREST = properties.getPropertyElement(
+            prefix + endpointRESTPropertyName, EndpointRESTNotGivenException::class
         )
 
-        // 11) get default endpoint template for saving RC results to network share
-        val endpointDefaultTemplate = getPropertyElement(
-            properties, prefix + endpointDefaultTemplatePropertyName, EndpointDefaultTemplateNotGivenException::class
+        // 10) get default endpoint template for saving RC results to network share
+        val endpointDefaultTemplate = properties.getPropertyElement(
+            prefix + endpointDefaultTemplatePropertyName, EndpointDefaultTemplateNotGivenException::class
         )
 
-        // 12) get version endpoint template for saving RC results to network share
-        val endpointVersionTemplate = getPropertyElement(
-            properties, prefix + endpointVersionTemplatePropertyName, EndpointVersionTemplateNotGivenException::class
+        // 11) get version endpoint template for saving RC results to network share
+        val endpointVersionTemplate = properties.getPropertyElement(
+            prefix + endpointVersionTemplatePropertyName, EndpointVersionTemplateNotGivenException::class
         )
 
-        // 13) get patch endpoint template for saving RC results to network share
-        val endpointPatchTemplate = getPropertyElement(
-            properties, prefix + endpointPatchTemplatePropertyName, EndpointPatchTemplateNotGivenException::class
+        // 12) get patch endpoint template for saving RC results to network share
+        val endpointPatchTemplate = properties.getPropertyElement(
+            prefix + endpointPatchTemplatePropertyName, EndpointPatchTemplateNotGivenException::class
         )
 
-        // 14) extend "clean" Task of root project
+        // 13) extend "clean" Task of root project
         target.tasks.getByName("clean").dependsOn(
-            target.tasks.register<CleanJUnitArtifactsTask>(CLEAN_ARTIFACT_TASK_NAME) { group = TASK_GROUP_PREPARATION }
+            target.tasks.register<CleanArtifactsTask>(CLEAN_ARTIFACT_TASK_NAME)
         )
 
-        // 15) configure filtered subproject
+        // 14) configure filtered subproject
         target.subprojects.filter {
             when(filteringFunctionGroovy) {
                 true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
@@ -192,91 +193,86 @@ open class jUnitReportsPlugin : Plugin<Project> {
             }
         }.forEach { prj ->
             // combineJUnitHTMLResults & combineJUnitXMLResults
-            prj.createCombineJUnitHTMLReportsTask("/jUnit")
-            prj.createCombineJUnitXMLReportsTask("/jUnit/xmlresults")
+            prj.tasks.register<JUnitHTMLResultsTask>(JUNIT_HTML_RESULTS_TASK_NAME)
+            prj.tasks.register<JUnitXMLResultsTask>(JUNIT_XML_RESULTS_TASK_NAME)
         }
 
-        // 16) configure root project (available everywhere)
+        // 15) configure root project (available everywhere)
         // gatherJUnitHTMLReports & gatherJUnitXMLReports & createJUnitResultsArchive
-        target.createGatherJUnitHTMLTask("/jUnit", filteringFunction, filteringFunctionGroovy)
-        target.createGatherJUnitXMLTask("/jUnit", "/jUnit/projects", filteringFunction, filteringFunctionGroovy)
-        target.createCreateJUnitResultsArchiveTask("/jUnit", "jUnit.zip")
+        target.tasks.register<JUnitHTMLReportsTask>(JUNIT_HTML_REPORTS_TASK_NAME) {
+            // Necessary inputs
+            filter = filteringFunction
+            filterGroovy = filteringFunctionGroovy
+        }
 
-        // 17) configure root project (only on build server)
+        target.tasks.register<JUnitXMLReportsTask>(JUNIT_XML_REPORTS_TASK_NAME) {
+            // Gathering XML reports from subprojects depends on gathering HTML reports and combining in subprojects
+            dependsOn(JUNIT_HTML_REPORTS_TASK_NAME)
+            dependsOn(
+                target.subprojects.filter {
+                    when(filteringFunctionGroovy) {
+                        true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
+                        false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
+                    }
+                }.map {
+                    it.tasks.getByName(JUNIT_XML_RESULTS_TASK_NAME)
+                }
+            )
+
+            // Necessary inputs
+            filter = filteringFunction
+            filterGroovy = filteringFunctionGroovy
+        }
+
+        target.tasks.register<ResultsArchiveTask>(RESULTS_ARCHIVE_TASK_NAME) {
+            // Creating ZIP archive depends on gathering XML files
+            dependsOn(JUNIT_XML_REPORTS_TASK_NAME)
+        }
+
+        target.tasks.register<FailedJUnitTestsTask>(FAILED_JUNIT_TESTS_TASK_NAME) {
+            // Creating "failed_junit_tests.txt" depends on creating ZIP archive
+            dependsOn(RESULTS_ARCHIVE_TASK_NAME)
+        }
+
+        // 16) configure root project (only on build server)
         if (target.providers.systemProperty("BUILDSERVER").forUseAtConfigurationTime().isPresent) {
             // createJUnitMetadataFile & publishJUnitNormal & publishJUnitRC & publishJUnitResults
-            target.createCreateJUnitMetadataFileTask(
-                "/jUnit.json", productVersion, productRC, filteringFunction, filteringFunctionGroovy
-            )
-            target.createPublishJUnitNormalTask("jUnit.zip", "jUnit.json", endpointREST)
-            target.createPublishJUnitRCTask(
-                productRC, endpointDefaultTemplate, productVersionIsPatch, endpointPatchTemplate,
-                endpointVersionTemplate, productVersion
-            )
-            target.createPublishJunitResultsTask()
-        }
-    }
+            target.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
+                // Creating "jUnit.json" depends on creating "failed_junit_tests.txt"
+                dependsOn(FAILED_JUNIT_TESTS_TASK_NAME)
 
-
-    /**
-     *  Function to retrieve the property value behind the provided property name
-     *
-     *  @param properties the properties containing configuration for this plugin
-     *  @param propertyName the name of the property in configuration properties file
-     *  @param notGivenException exception which should be thrown when no property provided with given name
-     *  @return property value string
-     *  @throws jUnitReportsPluginException and its subclasses
-     */
-    @Throws(jUnitReportsPluginException::class)
-    private fun <T: jUnitReportsPluginException> getPropertyElement(properties: Properties, propertyName: String,
-                                                                    notGivenException: KClass<T>) : String {
-        val notGivenMessage = "[${this::class.simpleName}.getPropertyElement] No value for property " +
-                                "'${propertyName}' given!"
-
-        return properties[propertyName]?.let {
-            return with (it as String) {
-                if (this.isBlank() || this == propertyName) {
-                    throw notGivenException.primaryConstructor?.call(notGivenMessage)
-                            ?: GetPropertyElementException(notGivenMessage)
-                }
-
-                this
+                // Necessary inputs
+                version = productVersion
+                rc = productRC
+                filter = filteringFunction
+                filterGroovy = filteringFunctionGroovy
             }
-        } ?: run {
-            throw notGivenException.primaryConstructor?.call(notGivenMessage)
-                    ?: GetPropertyElementException(notGivenMessage)
-        }
-    }
 
+            target.tasks.register<JUnitRESTSendTask>(JUNIT_REST_SEND_TASK_NAME) {
+                // Sending jUnit results to REST API depends on creating metadata file
+                dependsOn(METADATA_TASK_NAME)
 
-    /**
-     *  Function to retrieve the object behind the project extra property given by the provided property name
-     *  Fails with specific exceptions provided as well if not found
-     *
-     *  @param target the project which the plugin is applied to
-     *  @param properties the properties containing configuration for this plugin
-     *  @param propertyName the name of the property in projects external properties
-     *  @param notGivenException exception which should be thrown when no property provided with given name
-     *  @param notFoundException exception which should be thrown when no property found with given name
-     *  @return object (or function) behind the identifier in projects own extra properties
-     *  @throws jUnitReportsPluginException and its subclasses
-     */
-    @Throws(jUnitReportsPluginException::class)
-    private fun <T: jUnitReportsPluginException, U: jUnitReportsPluginException> getProjectExtraPropertyElement(
-        target: Project, properties: Properties, propertyName: String,
-        notGivenException: KClass<T>, notFoundException: KClass<U>
-    ) : Any {
-        val property = getPropertyElement(properties, propertyName, notGivenException)
+                // Necessary inputs
+                endpointRESTURL = endpointREST
+            }
 
-        val (part1: String, part2: String) = property.parsePropertyFunctionName()
-        try {
-            return (target.extra[part1] as Map<*, *>)[part2]!!
-        } catch (@Suppress("TooGenericExceptionCaught") err: Exception) {
-            val message = "[${this::class.simpleName}.getProjectExtraPropertyElement] No value for property " +
-                            "'${propertyName}' found in root projects extra properties OR another exception " +
-                            "occurred: ${err.message}"
-            throw notFoundException.primaryConstructor?.call(message)
-                    ?: GetProjectExtraPropertyElementException(message)
+            target.tasks.register<JUnitRCSaveTask>(JUNIT_RC_SAVE_TASK_NAME) {
+                // Saving RC results to file endpoint depends on creating metadata file
+                dependsOn(METADATA_TASK_NAME)
+
+                // Only run task if RC is actual release candidate
+                onlyIf { productRC.startsWith("RC") && !productRC.endsWith("_build") }
+
+                // Necessary inputs
+                version = productVersion
+                rc = productRC
+                this.productVersionIsPatch = productVersionIsPatch
+                this.endpointDefaultTemplate = endpointDefaultTemplate
+                this.endpointVersionTemplate = endpointVersionTemplate
+                this.endpointPatchTemplate = endpointPatchTemplate
+            }
+
+            target.tasks.register<JUnitFinalTask>(JUNIT_FINAL_TASK_NAME)
         }
     }
 }

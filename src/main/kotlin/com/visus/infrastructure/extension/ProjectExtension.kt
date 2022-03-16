@@ -15,11 +15,17 @@ package com.visus.infrastructure.extension
 import java.io.FileInputStream
 import java.util.Properties
 
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
+
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.extra
 
 import com.visus.infrastructure.jUnitReportsPlugin
+import com.visus.infrastructure.exception.GetProjectExtraPropertyElementException
 import com.visus.infrastructure.exception.NoPropertiesProvidedException
 import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
+import com.visus.infrastructure.exception.jUnitReportsPluginException
 
 
 /**
@@ -94,4 +100,34 @@ internal fun Project.readPropertiesFromFile(properties: Properties, keys: List<S
         "[${jUnitReportsPlugin::class.simpleName} -> Project.readPropertiesFromFile] The necessary properties " +
         "[${keys.joinToString(",")}] were not provided to this project!"
     )
+}
+
+
+/**
+ *  Function to retrieve the object behind the project extra property given by the provided property name
+ *  Fails with specific exceptions provided as well if not found
+ *
+ *  @param properties the properties containing configuration for this plugin
+ *  @param propertyName the name of the property in projects external properties
+ *  @param notGivenException exception which should be thrown when no property provided with given name
+ *  @param notFoundException exception which should be thrown when no property found with given name
+ *  @return object (or function) behind the identifier in projects own extra properties
+ *  @throws jUnitReportsPluginException and its subclasses
+ */
+@Throws(jUnitReportsPluginException::class)
+internal fun <T: jUnitReportsPluginException, U: jUnitReportsPluginException> Project.getProjectExtraPropertyElement(
+    properties: Properties, propertyName: String, notGivenException: KClass<T>, notFoundException: KClass<U>
+) : Any {
+    val (part1: String, part2: String) = properties.getPropertyElement(
+        propertyName, notGivenException
+    ).parsePropertyFunctionName()
+
+    try {
+        return (this.extra[part1] as Map<*, *>)[part2]!!
+    } catch (@Suppress("TooGenericExceptionCaught") err: Exception) {
+        val message = "[Project.getProjectExtraPropertyElement] No value for property '${propertyName}' found in " +
+                        "root projects extra properties OR another exception occurred: ${err.message}"
+        throw notFoundException.primaryConstructor?.call(message)
+                ?: GetProjectExtraPropertyElementException(message)
+    }
 }

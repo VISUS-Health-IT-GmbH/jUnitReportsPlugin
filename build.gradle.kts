@@ -40,12 +40,12 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-bom")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     implementation("org.jsoup:jsoup:1.14.3")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("com.github.stefanbirkner:system-lambda:1.2.0")
+    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     testImplementation(gradleTestKit())
 }
 
@@ -94,3 +94,7 @@ gradlePlugin {
         }
     }
 }
+
+
+/** 11) publish plugin to local Maven repository for integration test after creating JAR */
+tasks.jar.get().finalizedBy(tasks.getByName("publishToMavenLocal"))

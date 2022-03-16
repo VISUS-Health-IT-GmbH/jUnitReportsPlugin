@@ -14,5 +14,8 @@ package com.visus.infrastructure.tasks
 
 
 // task groups
-internal const val TASK_GROUP_PREPARATION       = "jUnitReportingPreparation"
-internal const val TASK_GROUP_ACTUAL_REPORTING  = "jUnitReporting"
+internal const val TASK_GROUP_CLEANING          = "jUnitReportsPlugin-cleaning"
+internal const val TASK_GROUP_COMBINING         = "jUnitReportsPlugin-combining"
+internal const val TASK_GROUP_GATHERING         = "jUnitReportsPlugin-gathering"
+internal const val TASK_GROUP_ARTIFACTS         = "jUnitReportsPlugin-artifacts"
+internal const val TASK_GROUP_PUBLISHING        = "jUnitReportsPlugin-publishing"

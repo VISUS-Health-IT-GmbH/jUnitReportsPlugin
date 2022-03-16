@@ -21,13 +21,14 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.testfixtures.ProjectBuilder
 
-@SuppressWarnings("unused")
-import com.visus.infrastructure.jUnitReportsPlugin
-import com.visus.infrastructure.tasks.CleanJUnitArtifactsTask
-import com.visus.infrastructure.tasks.CleanJUnitArtifactsTaskKt
-import com.visus.infrastructure.tasks.CombineJUnitSubprojectTasksKt
-import com.visus.infrastructure.tasks.CreateJUnitTasksKt
-import com.visus.infrastructure.tasks.GatherJUnitTasksKt
+import com.visus.infrastructure.tasks.CleanArtifactsTask
+import com.visus.infrastructure.tasks.CleanArtifactsTaskKt
+import com.visus.infrastructure.tasks.combining.JUnitHTMLResultsTaskKt
+import com.visus.infrastructure.tasks.combining.JUnitXMLResultsTaskKt
+import com.visus.infrastructure.tasks.gathering.JUnitHTMLReportsTaskKt
+import com.visus.infrastructure.tasks.gathering.JUnitXMLReportsTaskKt
+import com.visus.infrastructure.tasks.artifacts.MetadataTaskKt
+import com.visus.infrastructure.tasks.artifacts.FailedJUnitTestsTaskKt
 
 
 /**
@@ -35,15 +36,17 @@ import com.visus.infrastructure.tasks.GatherJUnitTasksKt
  */
 class jUnitReportsPluginTestGroovy {
     // path for properties file
-    private static String projectPropertiesPath = jUnitReportsPluginTestGroovy.class.classLoader.getResource(
-        "project/1.properties"
-    ).path.replace("%20", " ")
-    private static String reportingPropertiesPath = jUnitReportsPluginTestGroovy.class.classLoader.getResource(
-        "reporting/correct/1.properties"
-    ).path.replace("%20", " ")
+    private static String projectPropertiesPath = resource("project/1.properties")
+    private static String reportingPropertiesPath = resource("reporting/correct/1.properties")
 
     // properties object for necessary project properties
     private static Properties projectProperties = new Properties()
+
+
+    /** Simple helper method for resources */
+    private static String resource(String path) {
+        return jUnitReportsPluginTestGroovy.class.classLoader.getResource(path).path.replace("%20", " ")
+    }
 
 
     /** 0) Configuration to read properties once before running multiple tests using them */
@@ -78,22 +81,22 @@ class jUnitReportsPluginTestGroovy {
 
         project.pluginManager.apply(jUnitReportsPlugin)
 
-        Assert.assertNotNull(project.tasks.findByName(GatherJUnitTasksKt.GATHER_JUNIT_HTML_TASK_NAME))
-        Assert.assertNotNull(project.tasks.findByName(GatherJUnitTasksKt.GATHER_JUNIT_XML_TASK_NAME))
-        Assert.assertNotNull(project.tasks.findByName(CreateJUnitTasksKt.CREATE_JUNIT_ARCHIVE_TASK_NAME))
-        Assert.assertNotNull(
-            subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.COMBINE_JUNIT_HTML_SUBPROJECTS_TASK_NAME)
-        )
-        Assert.assertNotNull(
-            subProject.tasks.findByName(CombineJUnitSubprojectTasksKt.COMBINE_JUNIT_XML_SUBPROJECTS_TASK_NAME)
-        )
+        // evaluate subprojects for correctness
+        Assert.assertNotNull(subProject.tasks.findByName(JUnitHTMLResultsTaskKt.JUNIT_HTML_RESULTS_TASK_NAME))
+        Assert.assertNotNull(subProject.tasks.findByName(JUnitXMLResultsTaskKt.JUNIT_XML_RESULTS_TASK_NAME))
+
+        // evaluate root project for correctness
+        Assert.assertNotNull(project.tasks.findByName(JUnitHTMLReportsTaskKt.JUNIT_HTML_REPORTS_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(JUnitXMLReportsTaskKt.JUNIT_XML_REPORTS_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(MetadataTaskKt.METADATA_TASK_NAME))
+        Assert.assertNotNull(project.tasks.findByName(FailedJUnitTestsTaskKt.FAILED_JUNIT_TESTS_TASK_NAME))
     }
 
 
     /** 2) Evaluates that "clean" task depends on "cleanJUnitArtifacts" */
     @Test void testEvaluateCleanDependsOn() {
         def project = ProjectBuilder.builder().build()
-        def subProject = ProjectBuilder.builder().withParent(project).build()
+        def ignored = ProjectBuilder.builder().withParent(project).build()
 
         project.pluginManager.apply(JavaPlugin)
 
@@ -115,9 +118,10 @@ class jUnitReportsPluginTestGroovy {
 
         def clean = project.tasks.getByPath("clean")
         def cleanArtifact = project.tasks.getByName(
-            CleanJUnitArtifactsTaskKt.CLEAN_ARTIFACT_TASK_NAME
-        ) as CleanJUnitArtifactsTask
+            CleanArtifactsTaskKt.CLEAN_ARTIFACT_TASK_NAME
+        ) as CleanArtifactsTask
 
+        // evaluate cleaning tasks for correctness
         Assert.assertEquals(1, clean.dependsOn.size())
         Assert.assertEquals(cleanArtifact, (clean.dependsOn[0] as TaskProvider).get())
     }
