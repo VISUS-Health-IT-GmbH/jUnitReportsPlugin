@@ -37,19 +37,6 @@ internal class JavaPluginMissingException(message: String) : jUnitReportsPluginE
 
 
 /**
- *  Exception thrown when getPropertyElement function fails but could not call provided exception primary constructor
- */
-internal class GetPropertyElementException(message: String) : jUnitReportsPluginException(message)
-
-
-/**
- *  Exception thrown when getProjectExtraPropertyElement function fails but could not call provided exception primary
- *  constructor
- */
-internal class GetProjectExtraPropertyElementException(message: String) : jUnitReportsPluginException(message)
-
-
-/**
  *  Exception thrown when filtering function not given in properties file provided by the user
  */
 internal class FilteringFunctionNotGivenException(message: String) : jUnitReportsPluginException(message)

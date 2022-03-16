@@ -22,7 +22,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 
 import com.visus.infrastructure.jUnitReportsPlugin
-import com.visus.infrastructure.exception.GetProjectExtraPropertyElementException
 import com.visus.infrastructure.exception.NoPropertiesProvidedException
 import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
 import com.visus.infrastructure.exception.jUnitReportsPluginException
@@ -125,9 +124,9 @@ internal fun <T: jUnitReportsPluginException, U: jUnitReportsPluginException> Pr
     try {
         return (this.extra[part1] as Map<*, *>)[part2]!!
     } catch (@Suppress("TooGenericExceptionCaught") err: Exception) {
-        val message = "[Project.getProjectExtraPropertyElement] No value for property '${propertyName}' found in " +
-                        "root projects extra properties OR another exception occurred: ${err.message}"
-        throw notFoundException.primaryConstructor?.call(message)
-                ?: GetProjectExtraPropertyElementException(message)
+        throw notFoundException.primaryConstructor!!.call(
+            "[Project.getProjectExtraPropertyElement] No value for property '${propertyName}' found in root projects " +
+            "extra properties OR another exception occurred: ${err.message}"
+        )
     }
 }
