@@ -25,9 +25,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.Project
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-
 import com.visus.infrastructure.data.jUnitReportsMetadata
+import com.visus.infrastructure.data.toJSON
 import com.visus.infrastructure.extension.t
 import com.visus.infrastructure.tasks.TASK_GROUP_ARTIFACTS
 import com.visus.infrastructure.util.FilteringFunction
@@ -83,7 +82,7 @@ abstract class MetadataTask : DefaultTask() {
     /** Can't use "output" as OutputFile due to pl.projectDirectory / pl.buildDirectory! */
     @TaskAction
     fun createMetadata() {
-        val textJSON = jacksonObjectMapper().writeValueAsString(jUnitReportsMetadata(
+        val textJSON = toJSON(jUnitReportsMetadata(
             System.getProperty("BUILD_NUMBER").toInt(),
             System.getProperty("BRANCH_NAME"),
             System.getProperty("COMMIT_HASH"),

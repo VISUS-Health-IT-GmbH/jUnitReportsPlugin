@@ -52,7 +52,7 @@ abstract class JUnitXMLResultsTask : DefaultTask() {
     }
 
 
-    // TODO: Don't use "$buildDir/test-results" but each "Test" task output directory instead!
+    // INFO: Don't use "$buildDir/test-results" but each "Test" task output directory instead!
     @TaskAction
     fun combineXMLResults() {
         val input = File("${pl.buildDirectory}/test-results")

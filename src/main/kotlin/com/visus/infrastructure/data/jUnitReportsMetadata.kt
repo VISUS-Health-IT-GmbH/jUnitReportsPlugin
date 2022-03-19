@@ -12,6 +12,10 @@
  */
 package com.visus.infrastructure.data
 
+import java.util.stream.Collectors
+
+import com.visus.infrastructure.extension.t
+
 
 /**
  *  jUnitReportsMetadata:
@@ -29,3 +33,23 @@ data class jUnitReportsMetadata(
     val type: String?,          // (optional) build type
     val projects: List<String>  // list of subprojects tested using jUnit
 )
+
+
+/**
+ *  Converts a jUnitReportsMetadata object to JSON (replacing "jacksonObjectMapper().writeValueAsString(...)")
+ *
+ *  @param metadata the object to turn into JSON
+ *  @return JSON string
+ */
+internal fun toJSON(metadata: jUnitReportsMetadata) : String {
+    var output = "{ 'id': ${metadata.id}, "
+    output += "'branch': '${metadata.branch}', "
+    output += "'commit': '${metadata.commit}', "
+    output += "'version': ${metadata.version?.let { "'${metadata.version}'" } ?: "null"}, "
+    output += "'rc': ${metadata.rc?.let { "'${metadata.rc}'" } ?: "null"}, "
+    output += "'type': ${metadata.type?.let { "'${metadata.type}'" } ?: "null"}, "
+    output += "'projects': [ ${
+        (metadata.projects.isNotEmpty() t metadata.projects.stream().collect(Collectors.joining("','", "'", "'"))) ?: ""
+    } ] }"
+    return output
+}

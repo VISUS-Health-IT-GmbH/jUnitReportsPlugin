@@ -22,6 +22,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
 
 import com.visus.infrastructure.jUnitReportsPlugin
+import com.visus.infrastructure.exception.GroovyCompatibleException
 import com.visus.infrastructure.exception.NoPropertiesProvidedException
 import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
 import com.visus.infrastructure.exception.jUnitReportsPluginException
@@ -97,7 +98,7 @@ internal fun Project.readPropertiesFromFile(properties: Properties, keys: List<S
 
     throw NoPropertiesFileProvidedException(
         "[${jUnitReportsPlugin::class.simpleName} -> Project.readPropertiesFromFile] The necessary properties " +
-        "[${keys.joinToString(",")}] were not provided to this project!"
+        "[${keys.joinToString(",")}] were not provided in the properties object provided!"
     )
 }
 
@@ -124,9 +125,8 @@ internal fun <T: jUnitReportsPluginException, U: jUnitReportsPluginException> Pr
     try {
         return (this.extra[part1] as Map<*, *>)[part2]!!
     } catch (@Suppress("TooGenericExceptionCaught") err: Exception) {
-        throw notFoundException.primaryConstructor!!.call(
-            "[Project.getProjectExtraPropertyElement] No value for property '${propertyName}' found in root projects " +
-            "extra properties OR another exception occurred: ${err.message}"
-        )
+        val message = "[Project.getProjectExtraPropertyElement] No value for property '${propertyName}' found in " +
+                        "root projects extra properties OR another exception occurred: ${err.message}"
+        throw notFoundException.primaryConstructor?.call(message) ?: GroovyCompatibleException(message)
     }
 }

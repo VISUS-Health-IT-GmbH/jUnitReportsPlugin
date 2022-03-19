@@ -65,6 +65,7 @@ abstract class FailedJUnitTestsTask : DefaultTask() {
 
 
     /** Can't use "index" as InputFile and "output" as OutputFile due to pl.projectDirectory / pl.buildDirectory! */
+    @Suppress("LongMethod", "NestedBlockDepth")
     @TaskAction
     fun createFailedJunitTestsTXT() {
         val output = File("${pl.projectDirectory}/$failedJUnitTestsFileName")

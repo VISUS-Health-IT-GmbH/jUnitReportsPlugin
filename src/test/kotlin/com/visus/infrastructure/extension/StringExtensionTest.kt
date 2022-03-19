@@ -1,6 +1,6 @@
-/*  FileExtensionTest.kt
+/*  StringExtensionTest.kt
  *
- *  Copyright (C) 2021, VISUS Health IT GmbH
+ *  Copyright (C) 2022, VISUS Health IT GmbH
  *  This software and supporting documentation were developed by
  *    VISUS Health IT GmbH
  *    Gesundheitscampus-Sued 15-17
@@ -24,10 +24,10 @@ import com.visus.infrastructure.exception.StringExtensionException
 
 
 /**
- *  FileExtensionTest:
- *  =================
+ *  StringExtensionTest:
+ *  ===================
  *
- *  jUnit test cases on FileExtension
+ *  jUnit test cases on StringExtension
  */
 open class StringExtensionTest {
     companion object {

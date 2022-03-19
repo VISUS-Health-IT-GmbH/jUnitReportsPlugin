@@ -110,3 +110,10 @@ internal class EndpointVersionTemplateNotGivenException(message: String) : jUnit
  *  Exception thrown when patch release candidate endpoint template not given in properties file provided by the user
  */
 internal class EndpointPatchTemplateNotGivenException(message: String) : jUnitReportsPluginException(message)
+
+
+/**
+ *  Exception thrown by any methods using KClass / reflection when invoked from Groovy
+ *  => issue with constructors when converting Class<*> to KClass<*>
+ */
+internal class GroovyCompatibleException(message: String) : jUnitReportsPluginException(message)

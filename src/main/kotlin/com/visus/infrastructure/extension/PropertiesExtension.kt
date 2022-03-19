@@ -17,6 +17,7 @@ import java.util.Properties
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
+import com.visus.infrastructure.exception.GroovyCompatibleException
 import com.visus.infrastructure.exception.jUnitReportsPluginException
 
 
@@ -36,12 +37,14 @@ internal fun <T: jUnitReportsPluginException> Properties.getPropertyElement(prop
     return this[propertyName]?.let {
         return with (it as String) {
             if (this.isBlank() || this == propertyName) {
-                throw notGivenException.primaryConstructor!!.call(notGivenMessage)
+                throw notGivenException.primaryConstructor?.call(notGivenMessage)
+                        ?: GroovyCompatibleException(notGivenMessage)
             }
 
             this
         }
     } ?: run {
-        throw notGivenException.primaryConstructor!!.call(notGivenMessage)
+        throw notGivenException.primaryConstructor?.call(notGivenMessage)
+                ?: GroovyCompatibleException(notGivenMessage)
     }
 }
