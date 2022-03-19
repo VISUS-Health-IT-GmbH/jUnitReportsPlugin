@@ -68,8 +68,8 @@ abstract class FailedJUnitTestsTask : DefaultTask() {
     @Suppress("LongMethod", "NestedBlockDepth")
     @TaskAction
     fun createFailedJunitTestsTXT() {
-        val output = File("${pl.projectDirectory}/$failedJUnitTestsFileName")
-        val index = File("${pl.buildDirectory}/jUnit/index.html")
+        val output = File("${pl.projectDirectory.asFile.absolutePath}/$failedJUnitTestsFileName")
+        val index = File("${pl.buildDirectory.get().asFile.absolutePath}/jUnit/index.html")
 
         try {
             val numberOfFailures = index.parseHTMLFailures()
@@ -99,7 +99,7 @@ abstract class FailedJUnitTestsTask : DefaultTask() {
                     val numberOfSkipped = index.parseHTMLIgnored()
                     if (numberOfSkipped > 0) {
                         content += "There were $numberOfSkipped ignored jUnit tests as well. You should take a look " +
-                                    "why they were skipped / ignored (on purpose?) and maybe reactivate them!"
+                                    "why they were skipped / ignored (on purpose?) and maybe reactivate them!\n"
                     }
                 } catch (err: HTMLIgnoredNumberParserException) {
                     logger.warn(

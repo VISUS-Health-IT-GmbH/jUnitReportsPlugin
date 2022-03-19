@@ -12,7 +12,6 @@
  */
 package com.visus.infrastructure.tasks.artifacts
 
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.bundling.Zip
 
 import com.visus.infrastructure.tasks.TASK_GROUP_ARTIFACTS
@@ -34,10 +33,6 @@ internal const val RESULTS_ARCHIVE_FILE_NAME = "jUnit.zip"
  *  @author Tobias Hahnen
  */
 abstract class ResultsArchiveTask : Zip() {
-    /** file name of ZIP archive containing test artifacts - defaults to RESULTS_ARCHIVE_FILE_NAME */
-    @Input var zipFileName: String = RESULTS_ARCHIVE_FILE_NAME
-
-
     /** Constructor */
     init {
         // Set group and never skip but always run!
@@ -45,7 +40,7 @@ abstract class ResultsArchiveTask : Zip() {
         outputs.upToDateWhen { false }
 
         // Necessary task parameters
-        archiveFileName.set(zipFileName)
+        archiveFileName.convention(RESULTS_ARCHIVE_FILE_NAME)
         destinationDirectory.set(project.projectDir)
         this.from("${project.buildDir}/jUnit")
     }

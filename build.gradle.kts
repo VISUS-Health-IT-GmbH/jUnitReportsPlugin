@@ -70,6 +70,7 @@ detekt {
 
 /** 8) Gradle test configuration */
 tasks.withType<Test> {
+    ignoreFailures = true
     testLogging.showStandardStreams = true
 }
 
