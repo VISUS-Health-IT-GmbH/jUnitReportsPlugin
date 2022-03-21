@@ -27,7 +27,7 @@ import com.visus.infrastructure.tasks.TASK_GROUP_COMBINING
  *
  *  jUnit test cases on JUnitHTMLResultsTask
  */
-class JUnitHTMLResultsTaskTest {
+open class JUnitHTMLResultsTaskTest {
     /** 1) test creating task */
     @Test fun testCreate() {
         val project = ProjectBuilder.builder().build()

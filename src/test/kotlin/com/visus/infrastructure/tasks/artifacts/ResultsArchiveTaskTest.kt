@@ -27,7 +27,7 @@ import com.visus.infrastructure.tasks.TASK_GROUP_ARTIFACTS
  *
  *  jUnit test cases on ResultsArchiveTask
  */
-class ResultsArchiveTaskTest {
+open class ResultsArchiveTaskTest {
     companion object {
         // test values used throughout this test class
         internal const val testZipFileName = "testArchive.zip"
