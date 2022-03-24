@@ -12,8 +12,6 @@
  */
 package com.visus.infrastructure.tasks.artifacts
 
-import org.junit.Assert
-
 import static com.github.stefanbirkner.systemlambda.SystemLambda.restoreSystemProperties
 
 import org.junit.Test

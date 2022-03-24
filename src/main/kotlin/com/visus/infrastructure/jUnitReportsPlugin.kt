@@ -43,6 +43,16 @@ import com.visus.infrastructure.extension.readPropertiesFromFile
 import com.visus.infrastructure.tasks.CLEAN_ARTIFACT_TASK_NAME
 import com.visus.infrastructure.tasks.CleanArtifactsTask
 
+import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_FILE_NAME
+import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_TASK_NAME
+import com.visus.infrastructure.tasks.artifacts.METADATA_FILE_NAME
+import com.visus.infrastructure.tasks.artifacts.METADATA_TASK_NAME
+import com.visus.infrastructure.tasks.artifacts.RESULTS_ARCHIVE_FILE_NAME
+import com.visus.infrastructure.tasks.artifacts.RESULTS_ARCHIVE_TASK_NAME
+import com.visus.infrastructure.tasks.artifacts.FailedJUnitTestsTask
+import com.visus.infrastructure.tasks.artifacts.MetadataTask
+import com.visus.infrastructure.tasks.artifacts.ResultsArchiveTask
+
 import com.visus.infrastructure.tasks.combining.JUNIT_HTML_RESULTS_TASK_NAME
 import com.visus.infrastructure.tasks.combining.JUNIT_XML_RESULTS_TASK_NAME
 import com.visus.infrastructure.tasks.combining.JUnitHTMLResultsTask
@@ -52,13 +62,6 @@ import com.visus.infrastructure.tasks.gathering.JUNIT_HTML_REPORTS_TASK_NAME
 import com.visus.infrastructure.tasks.gathering.JUNIT_XML_REPORTS_TASK_NAME
 import com.visus.infrastructure.tasks.gathering.JUnitHTMLReportsTask
 import com.visus.infrastructure.tasks.gathering.JUnitXMLReportsTask
-
-import com.visus.infrastructure.tasks.artifacts.RESULTS_ARCHIVE_TASK_NAME
-import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_TASK_NAME
-import com.visus.infrastructure.tasks.artifacts.METADATA_TASK_NAME
-import com.visus.infrastructure.tasks.artifacts.ResultsArchiveTask
-import com.visus.infrastructure.tasks.artifacts.FailedJUnitTestsTask
-import com.visus.infrastructure.tasks.artifacts.MetadataTask
 
 import com.visus.infrastructure.tasks.publishing.JUNIT_REST_SEND_TASK_NAME
 import com.visus.infrastructure.tasks.publishing.JUNIT_RC_SAVE_TASK_NAME
@@ -248,12 +251,12 @@ open class jUnitReportsPlugin : Plugin<Project> {
                 filterGroovy = filteringFunctionGroovy
             }
 
-            target.tasks.register<JUnitRESTSendTask>(JUNIT_REST_SEND_TASK_NAME) {
+            target.tasks.register<JUnitRESTSendTask>(
+                JUNIT_REST_SEND_TASK_NAME, endpointREST,
+                FAILED_JUNIT_TESTS_FILE_NAME, METADATA_FILE_NAME, RESULTS_ARCHIVE_FILE_NAME
+            ).configure {
                 // Sending jUnit results to REST API depends on creating metadata file
                 dependsOn(METADATA_TASK_NAME)
-
-                // Necessary inputs
-                endpointRESTURL = endpointREST
             }
 
             target.tasks.register<JUnitRCSaveTask>(JUNIT_RC_SAVE_TASK_NAME) {

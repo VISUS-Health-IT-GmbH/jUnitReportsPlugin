@@ -12,8 +12,9 @@
  */
 package com.visus.infrastructure.tasks.publishing
 
+import javax.inject.Inject
+
 import org.gradle.api.tasks.Exec
-import org.gradle.api.tasks.Input
 
 import com.visus.infrastructure.tasks.TASK_GROUP_PUBLISHING
 import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_FILE_NAME
@@ -33,20 +34,8 @@ internal const val JUNIT_REST_SEND_TASK_NAME = "publishJUnitREST"
  *
  *  @author Tobias Hahnen
  */
-abstract class JUnitRESTSendTask : Exec() {
-    /** file name of text file containing failed jUnit tests - defaults to FAILED_JUNIT_TESTS_FILE_NAME */
-    @Input var failedJUnitTestsFileName : String = FAILED_JUNIT_TESTS_FILE_NAME
-
-    /** file name of JSON file containing metadata - defaults to METADATA_FILE_NAME */
-    @Input var metadataFileName: String = METADATA_FILE_NAME
-
-    /** file name of ZIP archive containing test artifacts - defaults to RESULTS_ARCHIVE_FILE_NAME */
-    @Input var zipFileName: String = RESULTS_ARCHIVE_FILE_NAME
-
-    /** REST endpoint URL */
-    @Input var endpointRESTURL: String? = null
-
-
+abstract class JUnitRESTSendTask @Inject constructor(endpointRESTURL: String, failedJUnitTestsFileName: String,
+                                                     metadataFileName: String, zipFileName: String) : Exec() {
     /** Constructor */
     init {
         // Set group and never skip but always run!
@@ -56,7 +45,8 @@ abstract class JUnitRESTSendTask : Exec() {
         // Necessary task parameters
         commandLine = listOf(
             "curl", "--no-progress-bar", "-F", "\"failed_junit_tests=@$failedJUnitTestsFileName\"", "-F",
-            "\"zip_file=@$zipFileName\"", "-F", "\"metadata_file=@$metadataFileName\"", "-X", "POST", endpointRESTURL!!
+            "\"zip_file=@$zipFileName\"", "-F", "\"metadata_file=@$metadataFileName\"", "-X", "POST",
+            endpointRESTURL
         )
     }
 }

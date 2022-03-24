@@ -34,7 +34,7 @@ import com.visus.infrastructure.util.FilteringFunction
  *
  *  jUnit test cases on MetadataTask
  *
- *  TODO: Maybe evaluate failed_junit_tests.txt file after each test?
+ *  TODO: Maybe evaluate jUnit.json file after each test?
  */
 open class MetadataTaskTest {
     companion object {
