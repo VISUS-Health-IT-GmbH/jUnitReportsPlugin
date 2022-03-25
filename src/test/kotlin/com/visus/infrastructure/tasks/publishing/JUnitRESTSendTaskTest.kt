@@ -32,6 +32,7 @@ import com.visus.infrastructure.tasks.artifacts.RESULTS_ARCHIVE_FILE_NAME
  */
 open class JUnitRESTSendTaskTest {
     /** 1) Test creating task with REST endpoint URL missing */
+    // TODO: Fix test see JUnitHTMLReportsTaskTest.testCreateWithoutParameters!
     @Test fun testCreateEndpointRESTMissing() {
         val project = ProjectBuilder.builder().build()
 

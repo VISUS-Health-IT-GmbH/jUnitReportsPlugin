@@ -99,8 +99,8 @@ abstract class JUnitRCSaveTask : DefaultTask() {
             .replace("{BUILDID}", System.getProperty("BUILD_NUMBER"))
 
         // create necessary folders on file endpoint
-        with (File(path))                       { if (!this.exists()) this.mkdir() }
-        with (File("$path/junit-qa")) { if (!this.exists()) this.mkdir() }
+        with (File(path))               { if (!this.exists()) this.mkdir() }
+        with (File("$path/junit-qa"))   { if (!this.exists()) this.mkdir() }
 
         // copy necessary files to folders
         with (File("${pl.projectDirectory}/$failedJUnitTestsFileName")) {

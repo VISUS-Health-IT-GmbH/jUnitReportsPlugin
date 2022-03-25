@@ -202,11 +202,9 @@ open class jUnitReportsPlugin : Plugin<Project> {
 
         // 15) configure root project (available everywhere)
         // gatherJUnitHTMLReports & gatherJUnitXMLReports & createJUnitResultsArchive
-        target.tasks.register<JUnitHTMLReportsTask>(JUNIT_HTML_REPORTS_TASK_NAME) {
-            // Necessary inputs
-            filter = filteringFunction
-            filterGroovy = filteringFunctionGroovy
-        }
+        target.tasks.register<JUnitHTMLReportsTask>(
+            JUNIT_HTML_REPORTS_TASK_NAME, filteringFunction, filteringFunctionGroovy
+        )
 
         target.tasks.register<JUnitXMLReportsTask>(JUNIT_XML_REPORTS_TASK_NAME) {
             // Gathering XML reports from subprojects depends on gathering HTML reports and combining in subprojects
