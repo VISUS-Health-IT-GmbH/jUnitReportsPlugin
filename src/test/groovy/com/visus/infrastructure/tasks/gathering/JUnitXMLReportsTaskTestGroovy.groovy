@@ -1,4 +1,4 @@
-/*  JUnitHTMLReportsTaskTestGroovy.groovy
+/*  JUnitXMLReportsTaskTestGroovy.groovy
  *
  *  Copyright (C) 2022, VISUS Health IT GmbH
  *  This software and supporting documentation were developed by
@@ -19,18 +19,24 @@ import org.gradle.testfixtures.ProjectBuilder
 
 
 /**
- *  jUnit test cases on JUnitHTMLReportsTask but with Groovy
+ *  jUnit test cases on JUnitXMLReportsTask but with Groovy
  */
-class JUnitHTMLReportsTaskTestGroovy {
-    @Test void testCreateCorrectParametersGroovy() {
+class JUnitXMLReportsTaskTestGroovy {
+    @Test void testCreateWithValues() {
         def project = ProjectBuilder.builder().build()
         @SuppressWarnings("GroovyUnusedDeclaration")
         def subProject = ProjectBuilder.builder().withParent(project).build()
 
-        project.tasks.register(
-            JUnitHTMLReportsTaskKt.JUNIT_HTML_REPORTS_TASK_NAME, JUnitHTMLReportsTask,
-            { String projectName -> true}, true
-        )
-        Assert.assertEquals(1, project.tasks.withType(JUnitHTMLReportsTask).size())
+        project.tasks.register(JUnitXMLReportsTaskKt.JUNIT_XML_REPORTS_TASK_NAME, JUnitXMLReportsTask) {
+            it.filterGroovy = true
+            it.filter = { String projectName -> true}
+        }
+
+        def task = project.tasks.findByName(JUnitXMLReportsTaskKt.JUNIT_XML_REPORTS_TASK_NAME) as JUnitXMLReportsTask
+
+        // emulate running task action when task is called
+        task.actions.each {
+            it.execute(task)
+        }
     }
 }

@@ -109,8 +109,22 @@ open class JUnitXMLResultsTaskTest {
     }
 
 
-    /** 2) Test creating task with test values */
-    @Test fun teCreateWithValues() {
+    /** 2) Test creating task without test values */
+    @Test fun testCreateMissingValues() {
+        val project = ProjectBuilder.builder().build()
+        project.tasks.register<JUnitXMLResultsTask>(JUNIT_XML_REPORTS_TASK_NAME)
+
+        val task = project.tasks.findByName(JUNIT_XML_REPORTS_TASK_NAME)!! as JUnitXMLResultsTask
+
+        // emulate running task action when task is called
+        task.actions.forEach {
+            it.execute(task)
+        }
+    }
+
+
+    /** 3) Test creating task with test values */
+    @Test fun testCreateWithValues() {
         val testFolder = File(projectTestResultsDir2, "testFolder")
         val testFile = File(testFolder, "testFile")
         testFolder.mkdirs()

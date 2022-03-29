@@ -89,8 +89,12 @@ abstract class JUnitRCSaveTask : DefaultTask() {
     @TaskAction
     fun saveRCResults() {
         // get template path
-        val path = productVersionIsPatch?.let { endpointPatchTemplate ?: endpointDefaultTemplate!! }
-                                        ?: endpointVersionTemplate ?: endpointDefaultTemplate!!
+        val path = productVersionIsPatch?.let {
+            when (productVersionIsPatch) {
+                true -> endpointPatchTemplate!!
+                else -> endpointVersionTemplate!!
+            }
+        } ?: endpointDefaultTemplate!!
 
         // fill template with necessary information
         path.replace("{VERSION}", version!!)

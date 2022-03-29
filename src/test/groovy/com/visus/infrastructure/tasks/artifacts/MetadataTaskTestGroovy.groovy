@@ -32,7 +32,7 @@ class MetadataTaskTestGroovy {
             System.setProperty("BUILDSERVER", "BOB-THE-BUILDER")
 
             def project = ProjectBuilder.builder().build()
-            @SuppressWarnings("UNUSED_VARIABLE")
+            @SuppressWarnings("GroovyUnusedDeclaration")
             def subProject = ProjectBuilder.builder().withParent(project).build()
 
             project.tasks.register(MetadataTaskKt.METADATA_TASK_NAME, MetadataTask) {

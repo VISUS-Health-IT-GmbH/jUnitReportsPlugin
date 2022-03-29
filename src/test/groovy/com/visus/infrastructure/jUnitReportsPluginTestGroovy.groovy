@@ -96,6 +96,7 @@ class jUnitReportsPluginTestGroovy {
     /** 2) Evaluates that "clean" task depends on "cleanJUnitArtifacts" */
     @Test void testEvaluateCleanDependsOn() {
         def project = ProjectBuilder.builder().build()
+        @SuppressWarnings("GroovyUnusedDeclaration")
         def ignored = ProjectBuilder.builder().withParent(project).build()
 
         project.pluginManager.apply(JavaPlugin)
