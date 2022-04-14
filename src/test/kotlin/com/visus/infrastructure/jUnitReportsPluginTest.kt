@@ -27,16 +27,14 @@ import org.gradle.testfixtures.ProjectBuilder
 import com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable
 
 import com.visus.infrastructure.exception.JavaPluginMissingException
-import com.visus.infrastructure.exception.NoPropertiesProvidedException
 import com.visus.infrastructure.exception.PluginWrongAppliedException
 import com.visus.infrastructure.exception.FilteringFunctionNotFoundException
-import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
-import com.visus.infrastructure.exception.PropertyValueIncorrectException
 import com.visus.infrastructure.exception.FilteringFunctionNotGivenException
 import com.visus.infrastructure.exception.ProductVersionNotFoundException
 import com.visus.infrastructure.exception.ProductVersionNotGivenException
 import com.visus.infrastructure.exception.ProductRCNotFoundException
 import com.visus.infrastructure.exception.ProductRCNotGivenException
+import com.visus.infrastructure.exception.ProductVersionIsPatchNotFoundException
 import com.visus.infrastructure.exception.ProductVersionIsPatchNotGivenException
 import com.visus.infrastructure.exception.EndpointRESTNotGivenException
 import com.visus.infrastructure.exception.EndpointDefaultTemplateNotGivenException
@@ -171,10 +169,10 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 2) Tests only applying the plugin (without project properties used for configuration) */
-    @Test fun testApplyPluginWithoutPropertiesToProject() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
+    /** 2) Tests only applying the plugin - not to root project */
+    @Test fun testApplyPluginToNonRootProject() {
+        val rootProject = ProjectBuilder.builder().build()
+        val project = ProjectBuilder.builder().withParent(rootProject).build()
 
         try {
             // try applying plugin (should fail)
@@ -182,38 +180,14 @@ open class jUnitReportsPluginTest {
         } catch (e: Exception) {
             // assert applying did not work because of no Java plugin applied
             // INFO: equal to check on InvalidUserDataException as it is based on it
-            Assert.assertEquals(NoPropertiesProvidedException::class, e.cause!!::class)
+            Assert.assertEquals(PluginWrongAppliedException::class, e.cause!!::class)
         }
 
-        Assert.assertTrue(project.plugins.hasPlugin(JavaPlugin::class.java))
         Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
     }
 
 
-    /** 3) Tests only applying the plugin to subproject (should not work at all) */
-    @Test fun testApplyPluginToSubProject() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
-
-        // add subproject
-        project.subprojects.add(ProjectBuilder.builder().build())
-
-        project.subprojects.forEach {
-            try {
-                // try applying plugin (should fail)
-                it.pluginManager.apply(jUnitReportsPlugin::class.java)
-            } catch (e: Exception) {
-                // assert applying did not work because of subproject
-                // INFO: equal to check on InvalidUserDataException as it is based on it
-                Assert.assertEquals(PluginWrongAppliedException::class, e.cause!!::class)
-            }
-
-            Assert.assertFalse(it.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-        }
-    }
-
-
-    /** 4) Tests only applying the plugin (with single environment variable used for configuration) */
+    /** 3) Tests only applying the plugin (with single environment variable used for configuration) */
     @Test fun testApplyPluginWithEnvironmentVariablesToProject() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -238,62 +212,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 5) Tests only applying the plugin (with all environment variables used for configuration) */
-    @Test fun testApplyPluginWithAllEnvironmentVariablesToProject() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
-
-        withEnvironmentVariable(
-            jUnitReportsPlugin.KEY_PATH, reportingPropertiesPath
-        ).and(
-            jUnitReportsPlugin.KEY_ISPRODUCTIONSYSTEM, ""
-        ).execute {
-            // assert that environment variables are set correctly
-            Assert.assertEquals(reportingPropertiesPath, System.getenv(jUnitReportsPlugin.KEY_PATH))
-            Assert.assertEquals(
-                "", System.getenv(jUnitReportsPlugin.KEY_ISPRODUCTIONSYSTEM)
-            )
-
-            try {
-                // try applying plugin (should fail)
-                project.pluginManager.apply(jUnitReportsPlugin::class.java)
-            } catch (e: Exception) {
-                // assert applying did not work because project extra properties missing
-                // INFO: equal to check on InvalidUserDataException as it is based on it
-                Assert.assertEquals(FilteringFunctionNotFoundException::class, e.cause!!::class)
-            }
-
-            Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-        }
-
-        val isProductionSystem = true
-        withEnvironmentVariable(
-            jUnitReportsPlugin.KEY_PATH, reportingPropertiesPath
-        ).and(
-            jUnitReportsPlugin.KEY_ISPRODUCTIONSYSTEM, isProductionSystem.toString()
-        ).execute {
-            // assert that environment variables are set correctly
-            Assert.assertEquals(reportingPropertiesPath, System.getenv(jUnitReportsPlugin.KEY_PATH))
-            Assert.assertEquals(
-                isProductionSystem,
-                System.getenv(jUnitReportsPlugin.KEY_ISPRODUCTIONSYSTEM)!!.toBoolean()
-            )
-
-            try {
-                // try applying plugin (should fail)
-                project.pluginManager.apply(jUnitReportsPlugin::class.java)
-            } catch (e: Exception) {
-                // assert applying did not work because project extra properties missing
-                // INFO: equal to check on InvalidUserDataException as it is based on it
-                Assert.assertEquals(NoPropertiesFileProvidedException::class, e.cause!!::class)
-            }
-
-            Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-        }
-    }
-
-
-    /** 6) Tests applying the plugin from project.properties (with project extra properties set) */
+    /** 4) Tests applying the plugin from project.properties (with project extra properties set) */
     @Test fun testApplyPluginExtraPropertiesSet() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -328,149 +247,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 7) Tests applying the plugin from project.properties (with project extra properties set) */
-    @Test fun testApplyPluginExtraWithProductionSystemPropertiesSet() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
-
-        // project properties reference (project.properties.set can not be used directly!)
-        val propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension::class.java)
-
-        // secretly append test properties to project
-        project2Properties.forEach {
-            propertiesExtension.set(it.key as String, it.value)
-        }
-
-        // Must be done this way as the value would change based on the person running this test!
-        // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension[jUnitReportsPlugin.KEY_ALTERNATEPATH] = reporting2PropertiesPath
-        propertiesExtension[jUnitReportsPlugin.KEY_ISPRODUCTIONSYSTEM] = "true"
-
-        /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
-        propertiesExtension.set(
-            "VISUS", mapOf(
-                "filterJUnitProjects" to { _: String -> true },
-                "version" to "5.3.1",
-                "rc" to "RC01",
-                "patch" to "true"
-            )
-        )
-
-        // apply plugin
-        project.pluginManager.apply(jUnitReportsPlugin::class.java)
-
-        // assert that plugin is loaded
-        Assert.assertTrue(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-    }
-
-
-    /** 8) Tests applying the plugin from project.properties (with project extra properties set) */
-    @Test fun testApplyPluginExtraWithTestingSystemPropertiesSet() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
-
-        // project properties reference (project.properties.set can not be used directly!)
-        val propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension::class.java)
-
-        // secretly append test properties to project
-        project3Properties.forEach {
-            propertiesExtension.set(it.key as String, it.value)
-        }
-
-        // Must be done this way as the value would change based on the person running this test!
-        // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension[jUnitReportsPlugin.KEY_ALTERNATEPATH] = reporting3PropertiesPath
-        propertiesExtension[jUnitReportsPlugin.KEY_ISPRODUCTIONSYSTEM] = "false"
-
-        /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
-        propertiesExtension.set(
-            "VISUS", mapOf(
-                "filterJUnitProjects" to { _: String -> true },
-                "version" to "5.3.1",
-                "rc" to "RC01",
-                "patch" to "true"
-            )
-        )
-
-        // apply plugin
-        project.pluginManager.apply(jUnitReportsPlugin::class.java)
-
-        // assert that plugin is loaded
-        Assert.assertTrue(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-    }
-
-
-    /** 9) Tests applying the plugin from project.properties with wrong filtering function */
-    @Test fun testApplyPluginWrongFilteringFunctionName() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
-
-        // project properties reference (project.properties.set can not be used directly!)
-        val propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension::class.java)
-
-        // secretly append test properties to project
-        projectProperties.forEach {
-            propertiesExtension.set(it.key as String, it.value)
-        }
-
-        // Must be done this way as the value would change based on the person running this test!
-        // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension[jUnitReportsPlugin.KEY_PATH] = reportingWrong1PropertiesPath
-
-        try {
-            // try applying plugin (should fail)
-            project.pluginManager.apply(jUnitReportsPlugin::class.java)
-        } catch (e: Exception) {
-            // assert applying did not work because filtering function name is wrong
-            // INFO: equal to check on InvalidUserDataException as it is based on it
-            Assert.assertEquals(PropertyValueIncorrectException::class, e.cause!!::class)
-        }
-
-        Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-    }
-
-
-    /** 10) Tests applying the plugin from project.properties with filtering function not found */
-    @Test fun testApplyPluginFilteringFunctionNotFound() {
-        val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply(JavaPlugin::class.java)
-
-        // project properties reference (project.properties.set can not be used directly!)
-        val propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension::class.java)
-
-        // secretly append test properties to project
-        projectProperties.forEach {
-            propertiesExtension.set(it.key as String, it.value)
-        }
-
-        // Must be done this way as the value would change based on the person running this test!
-        // INFO: normally the path inside the properties file is static / the same for everybody using it!
-        propertiesExtension[jUnitReportsPlugin.KEY_PATH] = reportingPropertiesPath
-
-        /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
-        propertiesExtension.set(
-            "VISUS", mapOf(
-                "filterJUnitProjects_wrongFilteringFunctionName" to { _: String -> true },
-                "version" to "5.3.1",
-                "rc" to "RC01",
-                "patch" to "true"
-            )
-        )
-
-        try {
-            // try applying plugin (should fail)
-            project.pluginManager.apply(jUnitReportsPlugin::class.java)
-        } catch (e: Exception) {
-            // assert applying did not work because filtering function name is not found
-            // INFO: equal to check on InvalidUserDataException as it is based on it
-            Assert.assertEquals(FilteringFunctionNotFoundException::class, e.cause!!::class)
-        }
-
-        Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
-    }
-
-
-    /** 11) Tests applying the plugin from project.properties with missing filtering function */
+    /** 5) Tests applying the plugin from project.properties with missing filtering function */
     @Test fun testApplyPluginMissingFilteringFunctionName() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -500,7 +277,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 12) Tests applying the plugin from project.properties with product version not found */
+    /** 6) Tests applying the plugin from project.properties with product version not found */
     @Test fun testApplyPluginProductVersionNotFound() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -540,7 +317,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 13) Tests applying the plugin from project.properties with missing product version */
+    /** 7) Tests applying the plugin from project.properties with missing product version */
     @Test fun testApplyPluginMissingProductVersion() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -580,7 +357,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 14) Tests applying the plugin from project.properties with product rc not found */
+    /** 8) Tests applying the plugin from project.properties with product rc not found */
     @Test fun testApplyPluginProductRCNotFound() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -620,7 +397,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 15) Tests applying the plugin from project.properties with missing product rc */
+    /** 9) Tests applying the plugin from project.properties with missing product rc */
     @Test fun testApplyPluginMissingProductRC() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -660,7 +437,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 16) Tests applying the plugin from project.properties with missing product patch info */
+    /** 10) Tests applying the plugin from project.properties with missing product patch info */
     @Test fun testApplyPluginMissingProductPatchInfo() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -700,7 +477,46 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 17) Tests applying the plugin from project.properties with missing REST endpoint */
+    /** 11) Tests applying the plugin from project.properties with missing product patch info (extension) */
+    @Test fun testApplyPluginMissingProductPatchInfo2() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply(JavaPlugin::class.java)
+
+        // project properties reference (project.properties.set can not be used directly!)
+        val propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension::class.java)
+
+        // secretly append test properties to project
+        projectProperties.forEach {
+            propertiesExtension.set(it.key as String, it.value)
+        }
+
+        // Must be done this way as the value would change based on the person running this test!
+        // INFO: normally the path inside the properties file is static / the same for everybody using it!
+        propertiesExtension[jUnitReportsPlugin.KEY_PATH] = reportingWrong8PropertiesPath
+
+        /** INFO: False-positive in Kotlin -> lambda arrow is necessary not redundant! */
+        propertiesExtension.set(
+            "VISUS", mapOf(
+                "filterJUnitProjects" to { _: String -> true },
+                "version" to "5.3.1",
+                "rc" to "RC01"
+            )
+        )
+
+        try {
+            // try applying plugin (should fail)
+            project.pluginManager.apply(jUnitReportsPlugin::class.java)
+        } catch (e: Exception) {
+            // assert applying did not work because product patch information not given
+            // INFO: equal to check on InvalidUserDataException as it is based on it
+            Assert.assertEquals(ProductVersionIsPatchNotFoundException::class, e.cause!!::class)
+        }
+
+        Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
+    }
+
+
+    /** 12) Tests applying the plugin from project.properties with missing REST endpoint */
     @Test fun testApplyPluginMissingRESTEndpoint() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -740,7 +556,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 18) Tests applying the plugin from project.properties with missing default endpoint template */
+    /** 13) Tests applying the plugin from project.properties with missing default endpoint template */
     @Test fun testApplyPluginMissingDefaultEndpointTemplate() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -780,7 +596,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 19) Tests applying the plugin from project.properties with missing version endpoint template */
+    /** 14) Tests applying the plugin from project.properties with missing version endpoint template */
     @Test fun testApplyPluginMissingVersionEndpointTemplate() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -820,7 +636,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 20) Tests applying the plugin from project.properties with missing patch endpoint template */
+    /** 15) Tests applying the plugin from project.properties with missing patch endpoint template */
     @Test fun testApplyPluginMissingPatchEndpointTemplate() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(JavaPlugin::class.java)
@@ -860,7 +676,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 21) Evaluates correctly created subproject tasks */
+    /** 16) Evaluates correctly created subproject tasks */
     @Test fun testEvaluateSubProjectTasks() {
         val project = ProjectBuilder.builder().build()
         val subProject = ProjectBuilder.builder().withParent(project).build()
@@ -899,7 +715,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 22) Evaluates correctly created root project tasks (no BUILDSERVER environment variable) */
+    /** 17) Evaluates correctly created root project tasks (no BUILDSERVER environment variable) */
     @Test fun testEvaluateRootProjectTasksNoBuildServer() {
         val project = ProjectBuilder.builder().build()
         @Suppress("UNUSED_VARIABLE")
@@ -942,7 +758,7 @@ open class jUnitReportsPluginTest {
     }
 
 
-    /** 23) Evaluates correctly created root project tasks (using BUILDSERVER environment variable) */
+    /** 18) Evaluates correctly created root project tasks (using BUILDSERVER environment variable) */
     @Test fun testEvaluateRootProjectTasksBuildServer() {
         System.setProperty("BUILDSERVER", "YESWECAN")
         System.setProperty("BUILD_NUMBER", 1337.toString())
@@ -987,23 +803,5 @@ open class jUnitReportsPluginTest {
         Assert.assertNotNull(project.tasks.findByName(JUNIT_REST_SEND_TASK_NAME))
         Assert.assertNotNull(project.tasks.findByName(JUNIT_RC_SAVE_TASK_NAME))
         Assert.assertNotNull(project.tasks.findByName(JUNIT_FINAL_TASK_NAME))
-    }
-
-
-    /** 24) Tests only applying the plugin - not to root project */
-    @Test fun testApplyPluginToNonRootProject() {
-        val rootProject = ProjectBuilder.builder().build()
-        val project = ProjectBuilder.builder().withParent(rootProject).build()
-
-        try {
-            // try applying plugin (should fail)
-            project.pluginManager.apply(jUnitReportsPlugin::class.java)
-        } catch (e: Exception) {
-            // assert applying did not work because of no Java plugin applied
-            // INFO: equal to check on InvalidUserDataException as it is based on it
-            Assert.assertEquals(PluginWrongAppliedException::class, e.cause!!::class)
-        }
-
-        Assert.assertFalse(project.plugins.hasPlugin(jUnitReportsPlugin::class.java))
     }
 }

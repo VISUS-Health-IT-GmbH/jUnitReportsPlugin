@@ -154,14 +154,10 @@ open class jUnitReportsPlugin : Plugin<Project> {
         ) as String
 
         // 8) get product version is patch for saving to network share
-        var productVersionIsPatch = target.getProjectExtraPropertyElement(
+        val productVersionIsPatch = target.getProjectExtraPropertyElement(
             properties, prefix + productVersionIsPatch,
             ProductVersionIsPatchNotGivenException::class, ProductVersionIsPatchNotFoundException::class
-        )
-        productVersionIsPatch = when (productVersionIsPatch) {
-            is String   -> productVersionIsPatch.toBoolean()
-            else        -> productVersionIsPatch.toString().toBoolean()
-        }
+        ).toString().toBoolean()
 
         // 9) get REST API endpoint of jUnit backend
         val endpointREST = properties.getPropertyElement(

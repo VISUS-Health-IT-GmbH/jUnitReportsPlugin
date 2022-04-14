@@ -12,17 +12,18 @@
  */
 package com.visus.infrastructure
 
+import static com.github.stefanbirkner.systemlambda.SystemLambda.restoreSystemProperties
+
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
 
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.testfixtures.ProjectBuilder
 
-import com.visus.infrastructure.tasks.CleanArtifactsTask
-import com.visus.infrastructure.tasks.CleanArtifactsTaskKt
+// SonarLint false-positive!
+import com.visus.infrastructure.jUnitReportsPlugin
 import com.visus.infrastructure.tasks.combining.JUnitHTMLResultsTaskKt
 import com.visus.infrastructure.tasks.combining.JUnitXMLResultsTaskKt
 import com.visus.infrastructure.tasks.gathering.JUnitHTMLReportsTaskKt
@@ -60,70 +61,42 @@ class jUnitReportsPluginTestGroovy {
      *      - jUnitReportsPluginTest.testEvaluateRootProjectTasksNoBuildServer
      */
     @Test void testEvaluateProjectTasks() {
-        def project = ProjectBuilder.builder().build()
-        def subProject = ProjectBuilder.builder().withParent(project).build()
+        restoreSystemProperties {
+            System.setProperty("BUILDSERVER", "YESWECAN")
+            System.setProperty("BUILD_NUMBER", 1337.toString())
+            System.setProperty("BRANCH_NAME", "feature/inf/INFRA-1337")
+            System.setProperty("COMMIT_HASH", "abcdef0123456789")
 
-        project.pluginManager.apply(JavaPlugin)
+            def project = ProjectBuilder.builder().build()
+            def subProject = ProjectBuilder.builder().withParent(project).build()
 
-        def propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension)
-        projectProperties.each {
-            propertiesExtension.set(it.key as String, it.value)
+            project.pluginManager.apply(JavaPlugin)
+
+            def propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension)
+            projectProperties.each {
+                propertiesExtension.set(it.key as String, it.value)
+            }
+
+            propertiesExtension.set(jUnitReportsPlugin.KEY_PATH, reportingPropertiesPath)
+
+            propertiesExtension.VISUS = [
+                    "filterJUnitProjects" : { String projectName -> true },
+                    "version" : "5.3.1",
+                    "rc" : "RC01_build",
+                    "patch" : true
+            ]
+
+            project.pluginManager.apply(jUnitReportsPlugin)
+
+            // evaluate subprojects for correctness
+            Assert.assertNotNull(subProject.tasks.findByName(JUnitHTMLResultsTaskKt.JUNIT_HTML_RESULTS_TASK_NAME))
+            Assert.assertNotNull(subProject.tasks.findByName(JUnitXMLResultsTaskKt.JUNIT_XML_RESULTS_TASK_NAME))
+
+            // evaluate root project for correctness
+            Assert.assertNotNull(project.tasks.findByName(JUnitHTMLReportsTaskKt.JUNIT_HTML_REPORTS_TASK_NAME))
+            Assert.assertNotNull(project.tasks.findByName(JUnitXMLReportsTaskKt.JUNIT_XML_REPORTS_TASK_NAME))
+            Assert.assertNotNull(project.tasks.findByName(MetadataTaskKt.METADATA_TASK_NAME))
+            Assert.assertNotNull(project.tasks.findByName(FailedJUnitTestsTaskKt.FAILED_JUNIT_TESTS_TASK_NAME))
         }
-
-        propertiesExtension.set(jUnitReportsPlugin.KEY_PATH, reportingPropertiesPath)
-
-        propertiesExtension.VISUS = [
-            "filterJUnitProjects" : { String projectName -> true },
-            "version" : "5.3.1",
-            "rc" : "RC01",
-            "patch" : true
-        ]
-
-        project.pluginManager.apply(jUnitReportsPlugin)
-
-        // evaluate subprojects for correctness
-        Assert.assertNotNull(subProject.tasks.findByName(JUnitHTMLResultsTaskKt.JUNIT_HTML_RESULTS_TASK_NAME))
-        Assert.assertNotNull(subProject.tasks.findByName(JUnitXMLResultsTaskKt.JUNIT_XML_RESULTS_TASK_NAME))
-
-        // evaluate root project for correctness
-        Assert.assertNotNull(project.tasks.findByName(JUnitHTMLReportsTaskKt.JUNIT_HTML_REPORTS_TASK_NAME))
-        Assert.assertNotNull(project.tasks.findByName(JUnitXMLReportsTaskKt.JUNIT_XML_REPORTS_TASK_NAME))
-        Assert.assertNotNull(project.tasks.findByName(MetadataTaskKt.METADATA_TASK_NAME))
-        Assert.assertNotNull(project.tasks.findByName(FailedJUnitTestsTaskKt.FAILED_JUNIT_TESTS_TASK_NAME))
-    }
-
-
-    /** 2) Evaluates that "clean" task depends on "cleanJUnitArtifacts" */
-    @Test void testEvaluateCleanDependsOn() {
-        def project = ProjectBuilder.builder().build()
-        @SuppressWarnings("GroovyUnusedDeclaration")
-        def ignored = ProjectBuilder.builder().withParent(project).build()
-
-        project.pluginManager.apply(JavaPlugin)
-
-        def propertiesExtension = project.extensions.getByType(ExtraPropertiesExtension)
-        projectProperties.each {
-            propertiesExtension.set(it.key as String, it.value)
-        }
-
-        propertiesExtension.set(jUnitReportsPlugin.KEY_PATH, reportingPropertiesPath)
-
-        propertiesExtension.VISUS = [
-                "filterJUnitProjects" : { String projectName -> true },
-                "version" : "5.3.1",
-                "rc" : "RC01",
-                "patch" : true
-        ]
-
-        project.pluginManager.apply(jUnitReportsPlugin)
-
-        def clean = project.tasks.getByPath("clean")
-        def cleanArtifact = project.tasks.getByName(
-            CleanArtifactsTaskKt.CLEAN_ARTIFACT_TASK_NAME
-        ) as CleanArtifactsTask
-
-        // evaluate cleaning tasks for correctness
-        Assert.assertEquals(1, clean.dependsOn.size())
-        Assert.assertEquals(cleanArtifact, (clean.dependsOn[0] as TaskProvider).get())
     }
 }
