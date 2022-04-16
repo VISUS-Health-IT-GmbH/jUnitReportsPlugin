@@ -17,6 +17,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.20"
     id("com.gradle.plugin-publish") version "0.14.0"
     id("io.gitlab.arturbosch.detekt") version "1.19.0-RC2"
+    id("org.sonarqube") version "3.3"
 }
 
 
