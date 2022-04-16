@@ -3,6 +3,8 @@
 ![example workflow](https://github.com/VISUS-Health-IT-GmbH/jUnitReportsPlugin/actions/workflows/gradle.yml/badge.svg)
 ![example workflow](https://github.com/VISUS-Health-IT-GmbH/jUnitReportsPlugin/actions/workflows/gradle_validation.yml/badge.svg)
 [![Coverage](.github/badges/jacoco.svg)](https://github.com/VISUS-Health-IT-GmbH/jUnitReportsPlugin/actions/workflows/gradle.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=VISUS-Health-IT-GmbH_jUnitReportsPlugin&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=VISUS-Health-IT-GmbH_jUnitReportsPlugin)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=VISUS-Health-IT-GmbH_jUnitReportsPlugin&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=VISUS-Health-IT-GmbH_jUnitReportsPlugin)
 
 Gradle Plugin to allow projects to report their jUnit results to endpoints defined by the user.
 
