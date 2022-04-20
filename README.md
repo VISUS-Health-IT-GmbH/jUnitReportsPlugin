@@ -56,19 +56,25 @@ product.patch=String
 # which REST endpoint should be used for publishing results (e.g. http://127.0.0.1:12345/VISUS)
 endpoint.rest=URL
 
-# template of the path where RC results should be stored by default (e.g. \\\\nw-share\\product\\build\\{BRANCH}\\{RC}\\{BUILDID})
-# possible templated elements are: {VERSION}, {RC}, {BRANCH}, {BUILDID}
-# -> will be replaced using environment variables!
+# template of the path where RC results should be stored by default
+# possible templated elements are: {VERSION}, {VERSION_ABCx}, {VERSION_ABx}, {VERSION_Ax}, {RC}, {BRANCH}, {BUILDID}
+# -> BRANCH / BUILDID will be replaced using environment variables!
+# -> e.g \\\\nw-share\\product\\build\\{BRANCH}\\{BUILDID} may result in
+#        \\\\nw-share\\product\\build\\bug--JIRA-123\\45
 endpoint.rc.default.template=Path
 
-# template of the path were RC results should be stored for version (e.g. \\\\nw-share\\product\\release\\{BRANCH}\\{RC}\\{BUILDID})
-# possible templated elements are: {VERSION}, {RC}, {BRANCH}, {BUILDID}
-# -> will be replaced using environment variables!
+# template of the path were RC results should be stored for version
+# possible templated elements are: {VERSION}, {VERSION_ABCx}, {VERSION_ABx}, {VERSION_Ax}, {RC}, {BRANCH}, {BUILDID}
+# -> BRANCH / BUILDID will be replaced using environment variables!
+# -> e.g. \\\\nw-share\\product\\release\\{VERSION}\\{RC}\\{BUILDID} may result in
+#         \\\\nw-share\\product\\release\\2.6.2\\RC05\\4
 endpoint.rc.version.template=Path
 
-# template of the path were RC results should be stored for patch (e.g. \\\\nw-share\\product\\patch\\{BRANCH}\\{RC}\\{BUILDID})
-# possible templated elements are: {VERSION}, {RC}, {BRANCH}, {BUILDID}
-# -> will be replaced using environment variables!
+# template of the path were RC results should be stored for patch
+# possible templated elements are: {VERSION}, {VERSION_ABCx}, {VERSION_ABx}, {VERSION_Ax}, {RC}, {BRANCH}, {BUILDID}
+# -> BRANCH / BUILDID will be replaced using environment variables!
+# -> e.g. \\\\nw-share\\product\\patch\\{VERSION_Ax}\\{VERSION_ABx}\\{VERSION}-{RC}\\{BUILDID} may result in
+#         \\\\nw-share\\product\\patch\\1.x\\1.2.x\\1.2.3-RC01\\9
 endpoint.rc.patch.template=Path
 ```
 

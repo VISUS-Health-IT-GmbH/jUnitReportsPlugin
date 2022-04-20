@@ -81,4 +81,32 @@ open class StringExtensionTest {
             "com/visus/infrastructure/extension/StringExtensionTest.class".tryResolveAbsolutePath(project)
         )
     }
+
+
+    /** 4) Tests on fixVersionScheme method */
+    @Test fun test_fixVersionScheme() {
+        Assert.assertEquals("5.0.0.0", "5".fixVersionScheme())
+        Assert.assertEquals("5.1.0.0", "5.1".fixVersionScheme())
+        Assert.assertEquals("5.1.2.0", "5.1.2".fixVersionScheme())
+        Assert.assertEquals("5.1.2.3", "5.1.2.3".fixVersionScheme())
+        Assert.assertEquals("5.1.2.3.4", "5.1.2.3.4".fixVersionScheme())
+    }
+
+
+    /** 5) Tests on versionABCx method */
+    @Test fun test_versionABCx() {
+        Assert.assertEquals("5.1.0.x", "5.1".versionABCx())
+    }
+
+
+    /** 6) Tests on versionABx method */
+    @Test fun test_versionABx() {
+        Assert.assertEquals("5.2.x", "5.2.3.4".versionABx())
+    }
+
+
+    /** 7) Tests on versionAx method */
+    @Test fun test_versionAx() {
+        Assert.assertEquals("5.x", "5.1.2.3".versionAx())
+    }
 }

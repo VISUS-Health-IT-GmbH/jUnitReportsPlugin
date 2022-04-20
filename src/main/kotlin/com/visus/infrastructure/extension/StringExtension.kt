@@ -68,3 +68,58 @@ internal fun String?.tryResolveAbsolutePath(target: Project) : String? = this?.l
     }
     null
 }
+
+
+/**
+ *  Fix a specific version to match the scheme <Major>.<Minor>.<Micro>.<Patch>
+ *  Accepted versions look like this: 5.3.0.0
+ *  -> 5 will be adjusted to 5.0.0.0
+ *  -> 5.1 will be adjusted to 5.1.0.0
+ *  -> 5.1.2 will be adjusted to 5.1.2.0
+ *  -> 5.1.2.3 will not be adjusted
+ *  -> 5.1.2.3.4 will not be adjusted
+ *
+ *  @return the adjusted version
+ */
+internal fun String.fixVersionScheme() : String = with (this.split("\\.".toRegex())) {
+    if (this.size >= 4) {
+        return@with this@fixVersionScheme
+    }
+
+    var newVersion = this@fixVersionScheme
+    for (i in 0..(3-this.size)) {
+        newVersion = "$newVersion.0"
+    }
+    newVersion
+}
+
+
+/**
+ *  Get version without the patch level
+ *  Accepted versions look like this: 5.3.0.x
+ *
+ *  @return the adjusted version
+ */
+internal fun String.versionABCx() : String  = with (this.fixVersionScheme().split("\\.".toRegex())) {
+    "${this[0]}.${this[1]}.${this[2]}.x"
+}
+
+
+/**
+ *  Get version without the patch / micro level
+ *  Accepted versions look like this: 5.3.x
+ *
+ *  @return the adjusted version
+ */
+internal fun String.versionABx() : String = with (this.fixVersionScheme().split("\\.".toRegex())) {
+    "${this[0]}.${this[1]}.x"
+}
+
+
+/**
+ *  Get version without the patch / micro / minor level
+ *  Accepted versions look like this: 5.x
+ *
+ *  @return the adjusted version
+ */
+internal fun String.versionAx() : String = "${this.fixVersionScheme().split("\\.".toRegex())[0]}.x"

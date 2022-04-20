@@ -23,6 +23,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 import com.visus.infrastructure.extension.encodeBranchName
+import com.visus.infrastructure.extension.versionABCx
+import com.visus.infrastructure.extension.versionABx
+import com.visus.infrastructure.extension.versionAx
 import com.visus.infrastructure.tasks.TASK_GROUP_PUBLISHING
 import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_FILE_NAME
 import com.visus.infrastructure.tasks.artifacts.METADATA_FILE_NAME
@@ -98,6 +101,9 @@ abstract class JUnitRCSaveTask : DefaultTask() {
 
         // fill template with necessary information
         path.replace("{VERSION}", version!!)
+            .replace("{VERSION_ABCx}", version!!.versionABCx())
+            .replace("{VERSION_ABx}", version!!.versionABx())
+            .replace("{VERSION_Ax}", version!!.versionAx())
             .replace("{RC}", rc!!)
             .replace("{BRANCH}", System.getProperty("BRANCH_NAME").encodeBranchName())
             .replace("{BUILDID}", System.getProperty("BUILD_NUMBER"))
