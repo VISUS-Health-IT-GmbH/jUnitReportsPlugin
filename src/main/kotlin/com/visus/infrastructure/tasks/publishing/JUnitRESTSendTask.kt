@@ -17,9 +17,6 @@ import javax.inject.Inject
 import org.gradle.api.tasks.Exec
 
 import com.visus.infrastructure.tasks.TASK_GROUP_PUBLISHING
-import com.visus.infrastructure.tasks.artifacts.FAILED_JUNIT_TESTS_FILE_NAME
-import com.visus.infrastructure.tasks.artifacts.METADATA_FILE_NAME
-import com.visus.infrastructure.tasks.artifacts.RESULTS_ARCHIVE_FILE_NAME
 
 
 /** task names of tasks used for publishing jUnit artifacts using REST API */
