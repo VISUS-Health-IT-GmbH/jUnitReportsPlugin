@@ -27,7 +27,7 @@ apply(from = "gradle/Publishing.gradle")
 
 /** 3) General information regarding the plugin */
 group   = project.extra["plugin.group"]!! as String
-version = project.extra["plugin.version"]!! as String
+version = (project.extra["plugin.version"]!! as String).replace("-pre", "")
 
 
 /** 4) Dependency source configuration */
