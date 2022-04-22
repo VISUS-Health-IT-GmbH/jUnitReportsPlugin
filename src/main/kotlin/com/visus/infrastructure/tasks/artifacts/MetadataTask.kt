@@ -27,7 +27,6 @@ import org.gradle.api.Project
 
 import com.visus.infrastructure.data.jUnitReportsMetadata
 import com.visus.infrastructure.data.toJSON
-import com.visus.infrastructure.extension.t
 import com.visus.infrastructure.tasks.TASK_GROUP_ARTIFACTS
 import com.visus.infrastructure.util.FilteringFunction
 
