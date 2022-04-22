@@ -50,7 +50,13 @@ open class MetadataTaskTest {
         /** 0) Create temporary directories for tests */
         @BeforeClass
         @JvmStatic fun configureTestsuite() {
-            // 1) remove directory if exists
+            // 1) unset system properties
+            System.clearProperty("BRANCH_NAME")
+            System.clearProperty("BUILD_NUMBER")
+            System.clearProperty("COMMIT_HASH")
+            System.clearProperty("BUILDSERVER")
+
+            // 2) remove directory if exists
             if (projectProjectDir.exists() && projectProjectDir.isDirectory) {
                 Files.walk(projectProjectDir.toPath())
                     .sorted(Comparator.reverseOrder())
@@ -58,7 +64,7 @@ open class MetadataTaskTest {
                     .forEach { it.delete() }
             }
 
-            // 2) create directory
+            // 3) create directory
             projectProjectDir.mkdirs()
         }
     }
@@ -141,6 +147,8 @@ open class MetadataTaskTest {
             Assert.assertEquals("abcdef", System.getProperty("COMMIT_HASH"))
 
             val project = ProjectBuilder.builder().build()
+            @Suppress("UNUSED_VARIABLE")
+            val subProject = ProjectBuilder.builder().withParent(project).build()
             project.tasks.register<MetadataTask>(METADATA_TASK_NAME)
 
             val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
@@ -162,6 +170,8 @@ open class MetadataTaskTest {
             System.setProperty("COMMIT_HASH", "abcdef")
 
             val project = ProjectBuilder.builder().build()
+            @Suppress("UNUSED_VARIABLE")
+            val subProject = ProjectBuilder.builder().withParent(project).build()
             project.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
                 filterGroovy = false
             }
@@ -185,6 +195,8 @@ open class MetadataTaskTest {
             System.setProperty("COMMIT_HASH", "abcdef")
 
             val project = ProjectBuilder.builder().build()
+            @Suppress("UNUSED_VARIABLE")
+            val subProject = ProjectBuilder.builder().withParent(project).build()
             project.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
                 filterGroovy = true
             }

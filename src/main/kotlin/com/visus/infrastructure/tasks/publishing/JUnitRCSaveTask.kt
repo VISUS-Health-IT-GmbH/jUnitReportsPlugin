@@ -92,7 +92,7 @@ abstract class JUnitRCSaveTask : DefaultTask() {
     @TaskAction
     fun saveRCResults() {
         // get template path
-        val path = productVersionIsPatch?.let {
+        var path = productVersionIsPatch?.let {
             when (productVersionIsPatch) {
                 true -> endpointPatchTemplate!!
                 else -> endpointVersionTemplate!!
@@ -100,7 +100,7 @@ abstract class JUnitRCSaveTask : DefaultTask() {
         } ?: endpointDefaultTemplate!!
 
         // fill template with necessary information
-        path.replace("{VERSION}", version!!)
+        path = path.replace("{VERSION}", version!!)
             .replace("{VERSION_ABCx}", version!!.versionABCx())
             .replace("{VERSION_ABx}", version!!.versionABx())
             .replace("{VERSION_Ax}", version!!.versionAx())
@@ -108,9 +108,14 @@ abstract class JUnitRCSaveTask : DefaultTask() {
             .replace("{BRANCH}", System.getProperty("BRANCH_NAME").encodeBranchName())
             .replace("{BUILDID}", System.getProperty("BUILD_NUMBER"))
 
-        // create necessary folders on file endpoint
-        with (File(path))               { if (!this.exists()) this.mkdir() }
-        with (File("$path/junit-qa"))   { if (!this.exists()) this.mkdir() }
+        // overwrite possibly existing information
+        with (File(path)) {
+            when {
+                this.exists()   -> this.deleteRecursively()
+                else            -> this.mkdirs()
+            }
+        }
+        File("$path/junit-qa").mkdirs()
 
         // copy necessary files to folders
         with (File("${pl.projectDirectory}/$failedJUnitTestsFileName")) {
@@ -124,7 +129,7 @@ abstract class JUnitRCSaveTask : DefaultTask() {
 
         fs.copy {
             from("${pl.projectDirectory}/$metadataFileName")
-            into(path)
+            into("$path/junit-qa")
         }
 
         fs.copy {

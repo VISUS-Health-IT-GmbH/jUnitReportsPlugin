@@ -38,6 +38,9 @@ open class JUnitHTMLResultsTaskTest {
         val task = project.tasks.findByName(JUNIT_HTML_RESULTS_TASK_NAME) as JUnitHTMLResultsTask?
         Assert.assertNotNull(task)
         Assert.assertEquals(TASK_GROUP_COMBINING, task!!.group)
-        Assert.assertEquals("${project.buildDir}/jUnit", task.destinationDir.absolutePath)
+        Assert.assertEquals(
+            "${project.buildDir.absolutePath.replace("\\", "/")}/jUnit",
+            task.destinationDir.absolutePath.replace("\\", "/")
+        )
     }
 }

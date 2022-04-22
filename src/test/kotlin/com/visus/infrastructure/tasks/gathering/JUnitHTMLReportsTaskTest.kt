@@ -95,7 +95,10 @@ open class JUnitHTMLReportsTaskTest {
         Assert.assertNotNull(task)
         Assert.assertEquals(TASK_GROUP_GATHERING, task!!.group)
         Assert.assertFalse(task.outputs.upToDateSpec.isEmpty)
-        Assert.assertEquals("${project.buildDir}/jUnit", task.destinationDir.absolutePath)
+        Assert.assertEquals(
+            "${project.buildDir.absolutePath.replace("\\", "/")}/jUnit",
+            task.destinationDir.absolutePath.replace("\\", "/")
+        )
         Assert.assertEquals(1, task.testResultDirs.files.size)
         Assert.assertEquals(subproject.projectDir, task.testResultDirs.files.toList()[0])
     }

@@ -88,7 +88,10 @@ abstract class MetadataTask : DefaultTask() {
             System.getProperty("COMMIT_HASH"),
             version,
             rc,
-            System.getProperties().containsKey("BUILDSERVER") t System.getProperty("BUILDSERVER"),
+            when {
+                System.getProperties().containsKey("BUILDSERVER")   -> System.getProperty("BUILDSERVER")
+                else                                                -> null
+            },
             subprojects.filter {
                 when (filterGroovy!!) {
                     true -> (filter!! as Closure<*>).call(it.name) as Boolean

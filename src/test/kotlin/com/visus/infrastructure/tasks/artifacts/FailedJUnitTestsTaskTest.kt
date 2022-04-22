@@ -88,8 +88,8 @@ open class FailedJUnitTestsTaskTest {
             projectJUnitDir2.mkdirs()
 
             // 3) copy HTML and rename
-            Files.copy(Path.of(correctHTML), File(projectJUnitDir, "index.html").toPath())
-            Files.copy(Path.of(correct2HTML), File(projectJUnitDir2, "index.html").toPath())
+            Files.copy(File(correctHTML).toPath(), File(projectJUnitDir, "index.html").toPath())
+            Files.copy(File(correct2HTML).toPath(), File(projectJUnitDir2, "index.html").toPath())
         }
     }
 
