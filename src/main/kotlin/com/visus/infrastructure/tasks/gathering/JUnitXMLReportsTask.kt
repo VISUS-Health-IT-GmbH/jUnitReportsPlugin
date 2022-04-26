@@ -20,6 +20,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.Project
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 import com.visus.infrastructure.tasks.TASK_GROUP_GATHERING
@@ -37,7 +38,7 @@ internal const val JUNIT_XML_REPORTS_TASK_NAME = "gatherJUnitXMLReports"
  *
  *  @author Tobias Hahnen
  */
-abstract class JUnitXMLReportsTask @Inject constructor(val subprojects: Set<Project>) : DefaultTask() {
+abstract class JUnitXMLReportsTask @Inject constructor(@Internal val subprojects: Set<Project>) : DefaultTask() {
     /** Configuration cache issue: project.buildDir not available in task action at execution time */
     @get:Inject abstract val pl: ProjectLayout
 

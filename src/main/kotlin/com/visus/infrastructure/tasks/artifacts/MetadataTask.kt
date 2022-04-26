@@ -20,6 +20,7 @@ import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.Project
 
@@ -43,7 +44,7 @@ internal const val METADATA_FILE_NAME = "jUnit.json"
  *
  *  @author Tobias Hahnen
  */
-abstract class MetadataTask @Inject constructor(val subprojects: Set<Project>) : DefaultTask() {
+abstract class MetadataTask @Inject constructor(@Internal val subprojects: Set<Project>) : DefaultTask() {
     /** Configuration cache issue: project.buildDir not available in task action at execution time */
     @get:Inject abstract val pl: ProjectLayout
 
