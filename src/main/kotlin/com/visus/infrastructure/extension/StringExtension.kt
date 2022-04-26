@@ -34,8 +34,6 @@ internal fun String.encodeBranchName(): String = this.replace("/", "--")
  *
  *  @return pair of property and function name
  *  @throws PropertyValueIncorrectException when string is formatted incorrectly
- *
- *  TODO: Allow functions path other than eg "Product.filteringFunction" like "Product.filtering.function"!
  */
 @Throws(PropertyValueIncorrectException::class)
 internal fun String.parsePropertyFunctionName(): Pair<String, String> {

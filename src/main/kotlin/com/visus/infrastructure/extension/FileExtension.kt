@@ -80,6 +80,12 @@ internal fun File.parseHTMLFailedTests() : Set<String> {
             failedTests.add(it.select("a")[1].attributes()["href"].replace("classes/", "").replace("html#", ""))
         }
 
+        when {
+            failedTests.size <= 0 -> throw Exception(
+                "[${jUnitReportsPlugin::class.simpleName} -> File.parseHTMLFailedTests] No failed tests found in list!"
+            )
+        }
+
         failedTests
     } catch (err: Exception) {
         throw HTMLFailedListParserException(

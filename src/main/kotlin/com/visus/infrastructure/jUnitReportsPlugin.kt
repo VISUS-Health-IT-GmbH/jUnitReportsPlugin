@@ -185,12 +185,14 @@ open class jUnitReportsPlugin : Plugin<Project> {
         )
 
         // 14) configure filtered subproject
-        target.subprojects.filter {
+        val filteredSubprojects = target.subprojects.filter {
             when(filteringFunctionGroovy) {
                 true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
                 false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
             }
-        }.forEach { prj ->
+        }.toSet()
+
+        filteredSubprojects.forEach { prj ->
             // combineJUnitHTMLResults & combineJUnitXMLResults
             prj.tasks.register<JUnitHTMLResultsTask>(JUNIT_HTML_RESULTS_TASK_NAME)
             prj.tasks.register<JUnitXMLResultsTask>(JUNIT_XML_RESULTS_TASK_NAME)
@@ -202,23 +204,16 @@ open class jUnitReportsPlugin : Plugin<Project> {
             JUNIT_HTML_REPORTS_TASK_NAME, filteringFunction, filteringFunctionGroovy
         )
 
-        target.tasks.register<JUnitXMLReportsTask>(JUNIT_XML_REPORTS_TASK_NAME) {
+        target.tasks.register<JUnitXMLReportsTask>(
+            JUNIT_XML_REPORTS_TASK_NAME, filteredSubprojects
+        ).configure {
             // Gathering XML reports from subprojects depends on gathering HTML reports and combining in subprojects
             dependsOn(JUNIT_HTML_REPORTS_TASK_NAME)
             dependsOn(
-                target.subprojects.filter {
-                    when(filteringFunctionGroovy) {
-                        true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
-                        false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
-                    }
-                }.map {
+                filteredSubprojects.map {
                     it.tasks.getByName(JUNIT_XML_RESULTS_TASK_NAME)
                 }
             )
-
-            // Necessary inputs
-            filter = filteringFunction
-            filterGroovy = filteringFunctionGroovy
         }
 
         target.tasks.register<ResultsArchiveTask>(RESULTS_ARCHIVE_TASK_NAME) {
@@ -234,15 +229,13 @@ open class jUnitReportsPlugin : Plugin<Project> {
         // 16) configure root project (only on build server)
         if (target.providers.systemProperty("BUILDSERVER").forUseAtConfigurationTime().isPresent) {
             // createJUnitMetadataFile & publishJUnitNormal & publishJUnitRC & publishJUnitResults
-            target.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
+            target.tasks.register<MetadataTask>(METADATA_TASK_NAME, filteredSubprojects).configure {
                 // Creating "jUnit.json" depends on creating "failed_junit_tests.txt"
                 dependsOn(FAILED_JUNIT_TESTS_TASK_NAME)
 
                 // Necessary inputs
                 version = productVersion
                 rc = productRC
-                filter = filteringFunction
-                filterGroovy = filteringFunctionGroovy
             }
 
             target.tasks.register<JUnitRESTSendTask>(

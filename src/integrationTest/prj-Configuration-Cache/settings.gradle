@@ -1,3 +1,0 @@
-rootProject.name = "prj-Configuration-Cache"
-
-include("submodule1")

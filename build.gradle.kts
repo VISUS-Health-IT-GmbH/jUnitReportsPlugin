@@ -16,7 +16,6 @@ plugins {
 
     id("org.jetbrains.kotlin.jvm") version "1.4.20"
     id("com.gradle.plugin-publish") version "0.14.0"
-    id("io.gitlab.arturbosch.detekt") version "1.19.0-RC2"
     id("org.sonarqube") version "3.3"
 }
 
@@ -62,21 +61,14 @@ tasks.jacocoTestReport {
 }
 
 
-/** 7) detekt configuration */
-detekt {
-    ignoreFailures = true
-    basePath = projectDir.toString()
-}
-
-
-/** 8) Gradle test configuration */
+/** 7) Gradle test configuration */
 tasks.withType<Test> {
     ignoreFailures = true
     testLogging.showStandardStreams = true
 }
 
 
-/** 9) Plugin configuration */
+/** 8) Plugin configuration */
 pluginBundle {
     website = project.extra["plugin.url"]!! as String
     vcsUrl  = project.extra["plugin.git"]!! as String
@@ -84,7 +76,7 @@ pluginBundle {
 }
 
 
-/** 10) Configuration for publishing plugin to Gradle Plugin Portal */
+/** 9) Configuration for publishing plugin to Gradle Plugin Portal */
 gradlePlugin {
     plugins {
         create(project.extra["plugin.name"]!! as String) {
@@ -97,5 +89,5 @@ gradlePlugin {
 }
 
 
-/** 11) publish plugin to local Maven repository for integration test after creating JAR */
+/** 10) publish plugin to local Maven repository for integration test after creating JAR */
 tasks.jar.get().finalizedBy(tasks.getByName("publishToMavenLocal"))

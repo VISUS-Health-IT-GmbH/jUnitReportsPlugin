@@ -75,7 +75,7 @@ open class MetadataTaskTest {
     fun testCreateSystemPropertyMissing1() {
         val project = ProjectBuilder.builder().build()
 
-        project.tasks.register<MetadataTask>(METADATA_TASK_NAME)
+        project.tasks.register<MetadataTask>(METADATA_TASK_NAME, project.subprojects)
         Assert.assertEquals(1, project.tasks.withType(MetadataTask::class.java).size)
 
         val task = project.tasks.findByName(METADATA_TASK_NAME) as MetadataTask?
@@ -85,8 +85,6 @@ open class MetadataTaskTest {
         Assert.assertNull(task.version)
         Assert.assertNull(task.rc)
         Assert.assertEquals(0, task.subprojects.size)
-        Assert.assertNull(task.filter)
-        Assert.assertNull(task.filterGroovy)
         Assert.assertEquals(METADATA_FILE_NAME, task.metadataFileName)
 
         // emulate running task action when task is called
@@ -104,7 +102,7 @@ open class MetadataTaskTest {
             Assert.assertEquals(1337, System.getProperty("BUILD_NUMBER").toInt())
 
             val project = ProjectBuilder.builder().build()
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME)
+            project.tasks.register<MetadataTask>(METADATA_TASK_NAME, project.subprojects)
 
             val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
 
@@ -125,7 +123,7 @@ open class MetadataTaskTest {
             Assert.assertEquals("develop", System.getProperty("BRANCH_NAME"))
 
             val project = ProjectBuilder.builder().build()
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME)
+            project.tasks.register<MetadataTask>(METADATA_TASK_NAME, project.subprojects)
 
             val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
 
@@ -137,81 +135,7 @@ open class MetadataTaskTest {
     }
 
 
-    /** 4) Test creating task and run actions without filterGroovy set */
-    @Test(expected = NullPointerException::class)
-    fun testCreateFilterGroovyMissing() {
-        restoreSystemProperties {
-            System.setProperty("BUILD_NUMBER", "1337")
-            System.setProperty("BRANCH_NAME", "develop")
-            System.setProperty("COMMIT_HASH", "abcdef")
-            Assert.assertEquals("abcdef", System.getProperty("COMMIT_HASH"))
-
-            val project = ProjectBuilder.builder().build()
-            @Suppress("UNUSED_VARIABLE")
-            val subProject = ProjectBuilder.builder().withParent(project).build()
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME)
-
-            val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
-
-            // emulate running task action when task is called
-            task.actions.forEach {
-                it.execute(task)
-            }
-        }
-    }
-
-
-    /** 5) Test creating task and run actions without filter set (filterGroovy = false) */
-    @Test(expected = NullPointerException::class)
-    fun testCreateFilterMissingFalse() {
-        restoreSystemProperties {
-            System.setProperty("BUILD_NUMBER", "1337")
-            System.setProperty("BRANCH_NAME", "develop")
-            System.setProperty("COMMIT_HASH", "abcdef")
-
-            val project = ProjectBuilder.builder().build()
-            @Suppress("UNUSED_VARIABLE")
-            val subProject = ProjectBuilder.builder().withParent(project).build()
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
-                filterGroovy = false
-            }
-
-            val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
-
-            // emulate running task action when task is called
-            task.actions.forEach {
-                it.execute(task)
-            }
-        }
-    }
-
-
-    /** 6) Test creating task and run actions without filter set (filterGroovy = true) */
-    @Test(expected = NullPointerException::class)
-    fun testCreateFilterMissingTrue() {
-        restoreSystemProperties {
-            System.setProperty("BUILD_NUMBER", "1337")
-            System.setProperty("BRANCH_NAME", "develop")
-            System.setProperty("COMMIT_HASH", "abcdef")
-
-            val project = ProjectBuilder.builder().build()
-            @Suppress("UNUSED_VARIABLE")
-            val subProject = ProjectBuilder.builder().withParent(project).build()
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
-                filterGroovy = true
-            }
-
-            val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
-
-            // emulate running task action when task is called
-            task.actions.forEach {
-                it.execute(task)
-            }
-        }
-    }
-
-
-    /** 7) Test creating task with correct data and evaluate correct behaviour */
+    /** 4) Test creating task with correct data and evaluate correct behaviour */
     @Test fun testCreateEmptySubprojects() {
         restoreSystemProperties {
             System.setProperty("BUILD_NUMBER", "1337")
@@ -220,11 +144,7 @@ open class MetadataTaskTest {
             System.setProperty("BUILDSERVER", "BOB-THE-BUILDER")
 
             val project = ProjectBuilder.builder().withProjectDir(projectProjectDir).build()
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
-                filterGroovy = false
-                filter = { _: String -> true } as FilteringFunction
-            }
-
+            project.tasks.register<MetadataTask>(METADATA_TASK_NAME, project.subprojects)
             val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
 
             // emulate running task action when task is called
@@ -235,7 +155,7 @@ open class MetadataTaskTest {
     }
 
 
-    /** 8) Test creating task with subprojects and custom metadata filename */
+    /** 5) Test creating task with subprojects and custom metadata filename */
     @Test fun testCreateWithSubprojects() {
         restoreSystemProperties {
             System.setProperty("BUILD_NUMBER", "1337")
@@ -247,10 +167,35 @@ open class MetadataTaskTest {
             @Suppress("UNUSED_VARIABLE")
             val subProject = ProjectBuilder.builder().withParent(project).build()
 
-            project.tasks.register<MetadataTask>(METADATA_TASK_NAME) {
-                filterGroovy = false
-                filter = { _: String -> true } as FilteringFunction
+            project.tasks.register<MetadataTask>(METADATA_TASK_NAME, project.subprojects).configure {
+                /** INFO: IntelliJ IDEA false-positive */
                 metadataFileName = "test.json"
+            }
+
+            val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
+
+            // emulate running task action when task is called
+            task.actions.forEach {
+                it.execute(task)
+            }
+        }
+    }
+
+
+    /** 6) Test creating task with subprojects and custom metadata filename (no build server) */
+    @Test fun testCreateWithSubprojectsNoBuildServer() {
+        restoreSystemProperties {
+            System.setProperty("BUILD_NUMBER", "1337")
+            System.setProperty("BRANCH_NAME", "develop")
+            System.setProperty("COMMIT_HASH", "abcdef")
+
+            val project = ProjectBuilder.builder().withProjectDir(projectProjectDir).build()
+            @Suppress("UNUSED_VARIABLE")
+            val subProject = ProjectBuilder.builder().withParent(project).build()
+
+            project.tasks.register<MetadataTask>(METADATA_TASK_NAME, project.subprojects).configure {
+                /** INFO: IntelliJ IDEA false-positive */
+                metadataFileName = "test2.json"
             }
 
             val task = project.tasks.findByName(METADATA_TASK_NAME)!! as MetadataTask
