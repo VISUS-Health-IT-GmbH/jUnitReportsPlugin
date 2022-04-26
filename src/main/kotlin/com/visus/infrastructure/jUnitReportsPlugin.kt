@@ -37,6 +37,7 @@ import com.visus.infrastructure.exception.EndpointPatchTemplateNotGivenException
 
 import com.visus.infrastructure.extension.getProjectExtraPropertyElement
 import com.visus.infrastructure.extension.getPropertyElement
+import com.visus.infrastructure.extension.hasActualJUnitTestcases
 import com.visus.infrastructure.extension.readProperties
 import com.visus.infrastructure.extension.readPropertiesFromFile
 
@@ -190,6 +191,11 @@ open class jUnitReportsPlugin : Plugin<Project> {
                 true    -> (filteringFunction as Closure<*>).call(it.name) as Boolean
                 false   -> @Suppress("UNCHECKED_CAST")(filteringFunction as FilteringFunction)(it.name)
             }
+        }.filter {
+            // INFO: On projects not yet filtered out: Try to predict if actual jUnit test cases were found in the files
+            //       and if none found, exclude the project as well!
+            //       -> When no source sets are available, skip the check
+            it.hasActualJUnitTestcases()
         }.toSet()
 
         filteredSubprojects.forEach { prj ->

@@ -19,6 +19,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 import org.gradle.api.Project
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.kotlin.dsl.extra
 
 import com.visus.infrastructure.jUnitReportsPlugin
@@ -125,8 +126,46 @@ internal fun <T: jUnitReportsPluginException, U: jUnitReportsPluginException> Pr
     try {
         return (this.extra[part1] as Map<*, *>)[part2]!!
     } catch (@Suppress("TooGenericExceptionCaught") err: Exception) {
-        val message = "[Project.getProjectExtraPropertyElement] No value for property '${propertyName}' found in " +
-                        "root projects extra properties OR another exception occurred: ${err.message}"
+        val message = "[${jUnitReportsPlugin::class.simpleName} -> Project.getProjectExtraPropertyElement] No value " +
+                        "for property '${propertyName}' found in root projects extra properties OR another exception " +
+                        "occurred: ${err.message}"
         throw notFoundException.primaryConstructor?.call(message) ?: GroovyCompatibleException(message)
     }
+}
+
+
+/**
+ *  Check if jUnit test cases, marked with "@Test", were found in all source sets named something with "test"
+ *
+ *  @return true when test cases were found in files, false otherwise
+ *
+ *  TODO: Add jUnit test cases!
+ */
+internal fun Project.hasActualJUnitTestcases() : Boolean {
+    val sourceSets = this.extensions.findByType(SourceSetContainer::class.java)
+
+    sourceSets?.let { it ->
+        it.filter { sourceSet ->
+            sourceSet.name.contains("test", ignoreCase = true)
+        }.forEach { sourceSet ->
+            sourceSet.allSource.forEach { sourceFile ->
+                when { sourceFile.readText().contains("@Test", ignoreCase = true) -> return true }
+            }
+        }
+
+        logger.warn(
+            "[${jUnitReportsPlugin::class.simpleName} -> Project.hasActualTests] No test cases were found in project " +
+            "'$name'! Maybe ignore it in the filtering function provided using the property 'product.filter' or add " +
+            "some actual jUnit tests."
+        )
+
+        return false
+    }
+
+    logger.warn(
+        "[${jUnitReportsPlugin::class.simpleName} -> Project.hasActualTests] Cannot check for existing test cases in " +
+        "project '$name'! This was due to no project extension of type 'SourceSetContainer' was found in the project!"
+    )
+
+    return true
 }

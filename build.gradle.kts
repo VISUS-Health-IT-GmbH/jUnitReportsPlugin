@@ -17,6 +17,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.4.20"
     id("com.gradle.plugin-publish") version "0.14.0"
     id("org.sonarqube") version "3.3"
+    id("com.autonomousapps.dependency-analysis") version "1.1.0"
 }
 
 
@@ -39,11 +40,10 @@ repositories {
 /** 5) Plugin dependencies */
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-bom")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jsoup:jsoup:1.14.3")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
     testImplementation(gradleTestKit())
 }
