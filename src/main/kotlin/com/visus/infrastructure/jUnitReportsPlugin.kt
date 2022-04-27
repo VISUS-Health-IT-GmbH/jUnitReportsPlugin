@@ -17,7 +17,6 @@ import groovy.lang.Closure
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.tasks.testing.Test
 // SonarLint false-positive: kotlin:S1128
 import org.gradle.kotlin.dsl.register
 
