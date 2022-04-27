@@ -195,7 +195,11 @@ open class jUnitReportsPlugin : Plugin<Project> {
             // INFO: On projects not yet filtered out: Try to predict if actual jUnit test cases were found in the files
             //       and if none found, exclude the project as well!
             //       -> When no source sets are available, skip the check
-            it.hasActualJUnitTestcases()
+            try {
+                it.hasActualJUnitTestcases()
+            } catch (ignored: Exception) {
+                true
+            }
         }.toSet()
 
         filteredSubprojects.forEach { prj ->

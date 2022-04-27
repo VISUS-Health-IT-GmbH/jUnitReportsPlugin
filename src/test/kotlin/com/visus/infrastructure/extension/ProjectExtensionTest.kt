@@ -20,11 +20,14 @@ import org.junit.Assert
 import org.junit.Test
 
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.testfixtures.ProjectBuilder
 
 import com.github.stefanbirkner.systemlambda.SystemLambda.restoreSystemProperties
 import com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable
 
+import com.visus.infrastructure.jUnitReportsPlugin
 import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
 import com.visus.infrastructure.exception.NoPropertiesProvidedException
 import com.visus.infrastructure.exception.ProjectExtensionException
@@ -40,6 +43,15 @@ import com.visus.infrastructure.util.FilteringFunction
  */
 open class ProjectExtensionTest {
     companion object {
+        // current Gradle project buildDir ($buildDir/classes/kotlin/test) -> 3x parent
+        private val buildDir = File(
+            this::class.java.protectionDomain.codeSource.location.path
+        ).parentFile.parentFile.parentFile
+
+        // The src/test/kotlin folder of this plugin!
+        private val pluginSrcTestJava = File("${buildDir.parentFile.absolutePath}/src/test/kotlin")
+
+
         // paths / resources used throughout this test
         private val projectDir = resource("project")
         private const val project1Path = "1.properties"
@@ -200,6 +212,48 @@ open class ProjectExtensionTest {
         @Suppress("UNCHECKED_CAST")(project.getProjectExtraPropertyElement(
             properties, "t-key", Test1Exception::class, Test2Exception::class
         ) as FilteringFunction)
+    }
+
+
+    /** 10) Test on "hasActualJUnitTestcases" without Java plugin (which is necessary) */
+    @Test(expected = IllegalStateException::class)
+    fun testHasActualJUnitTestcasesWithoutJavaPlugin() {
+        Assert.assertFalse(ProjectBuilder.builder().build().hasActualJUnitTestcases())
+    }
+
+
+    /** 11) Test on "hasActualJUnitTestcases" with Java plugin but no test cases */
+    @Test fun testHasActualJUnitTestcasesNoTestFile() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply(JavaPlugin::class.java)
+
+        // set listener to evaluate output logged by plugin
+        project.logging.addStandardOutputListener { message ->
+            Assert.assertTrue(
+                message.contains(
+                    "[${jUnitReportsPlugin::class.simpleName} -> Project.hasActualTests] No test cases were found in " +
+                    "project '$${project.name}'! Maybe ignore it in the filtering function provided using the " +
+                    "property 'product.filter' or add some actual jUnit tests."
+                )
+            )
+        }
+
+        Assert.assertFalse(project.hasActualJUnitTestcases())
+    }
+
+
+    /** 12) Test on "hasActualJUnitTestcases" with Java plugin and test cases (from this very plugin) */
+    @Test fun testHasActualJUnitTestcasesWithTestFile() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply(JavaPlugin::class.java)
+
+        project.convention.getPlugin(JavaPluginConvention::class.java).sourceSets.filter {
+            it.name.contains("test", ignoreCase = true)
+        }.forEach {
+            it.allSource.srcDir(pluginSrcTestJava.absolutePath)
+        }
+
+        Assert.assertTrue(project.hasActualJUnitTestcases())
     }
 }
 
