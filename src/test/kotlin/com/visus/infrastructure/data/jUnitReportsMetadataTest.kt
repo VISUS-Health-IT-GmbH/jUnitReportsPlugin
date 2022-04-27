@@ -26,15 +26,21 @@ open class jUnitReportsMetadataTest {
     /** 1) test toJSON method for converting jUnitReportsMetadata object to JSON string */
     @Test fun testToJSON() {
         Assert.assertEquals(
-            "{ 'id': 1, 'branch': 'test', 'commit': 'abc', 'version': '1.0', 'rc': 'RC01', 'type': 'DAILY', " +
-            "'projects': [ 'a','b','c' ] }",
+            "{\"id\":1,\"branch\":\"test\",\"commit\":\"abc\",\"version\":\"1.0\",\"rc\":\"RC01\",\"type\":\"DAILY\"," +
+            "\"projects\":[\"a\",\"b\",\"c\"]}",
             toJSON(jUnitReportsMetadata(1, "test", "abc", "1.0", "RC01", "DAILY", listOf("a", "b", "c")))
+                .replace("\t", "")
+                .replace("\n", "")
+                .replace(" ", "")
         )
 
         Assert.assertEquals(
-            "{ 'id': 1, 'branch': 'test', 'commit': 'abc', 'version': null, 'rc': null, 'type': null, " +
-            "'projects': [  ] }",
+            "{\"id\":1,\"branch\":\"test\",\"commit\":\"abc\",\"version\":null,\"rc\":null,\"type\":null," +
+            "\"projects\":[]}",
             toJSON(jUnitReportsMetadata(1, "test", "abc", null, null, null, listOf()))
+                .replace("\t", "")
+                .replace("\n", "")
+                .replace(" ", "")
         )
     }
 }

@@ -42,14 +42,16 @@ data class jUnitReportsMetadata(
  *  @return JSON string
  */
 internal fun toJSON(metadata: jUnitReportsMetadata) : String {
-    var output = "{ 'id': ${metadata.id}, "
-    output += "'branch': '${metadata.branch}', "
-    output += "'commit': '${metadata.commit}', "
-    output += "'version': ${metadata.version?.let { "'${metadata.version}'" } ?: "null"}, "
-    output += "'rc': ${metadata.rc?.let { "'${metadata.rc}'" } ?: "null"}, "
-    output += "'type': ${metadata.type?.let { "'${metadata.type}'" } ?: "null"}, "
-    output += "'projects': [ ${
-        (metadata.projects.isNotEmpty() t metadata.projects.stream().collect(Collectors.joining("','", "'", "'"))) ?: ""
-    } ] }"
+    var output = "{"
+    output += "\n\t\"id\": ${metadata.id},"
+    output += "\n\t\"branch\": \"${metadata.branch}\","
+    output += "\n\t\"commit\": \"${metadata.commit}\","
+    output += "\n\t\"version\": ${metadata.version?.let { "\"${metadata.version}\"" } ?: "null"},"
+    output += "\n\t\"rc\": ${metadata.rc?.let { "\"${metadata.rc}\"" } ?: "null"},"
+    output += "\n\t\"type\": ${metadata.type?.let { "\"${metadata.type}\"" } ?: "null"},"
+    output += "\n\t\"projects\": ["
+    output += "\n\t\t${(metadata.projects.isNotEmpty() t metadata.projects.stream().collect(Collectors.joining("\",\n\t\t\"", "\"", "\""))) ?: ""}"
+    output += "\n\t]"
+    output += "\n}"
     return output
 }
