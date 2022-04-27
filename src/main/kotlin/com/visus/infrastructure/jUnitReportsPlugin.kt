@@ -17,6 +17,7 @@ import groovy.lang.Closure
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.testing.Test
 // SonarLint false-positive: kotlin:S1128
 import org.gradle.kotlin.dsl.register
 
@@ -201,13 +202,15 @@ open class jUnitReportsPlugin : Plugin<Project> {
         filteredSubprojects.forEach { prj ->
             // combineJUnitHTMLResults & combineJUnitXMLResults
             prj.tasks.register<JUnitHTMLResultsTask>(JUNIT_HTML_RESULTS_TASK_NAME)
-            prj.tasks.register<JUnitXMLResultsTask>(JUNIT_XML_RESULTS_TASK_NAME)
+            prj.tasks.register<JUnitXMLResultsTask>(JUNIT_XML_RESULTS_TASK_NAME) {
+                dependsOn(JUNIT_HTML_RESULTS_TASK_NAME)
+            }
         }
 
         // 15) configure root project (available everywhere)
         // gatherJUnitHTMLReports & gatherJUnitXMLReports & createJUnitResultsArchive
         target.tasks.register<JUnitHTMLReportsTask>(
-            JUNIT_HTML_REPORTS_TASK_NAME, filteringFunction, filteringFunctionGroovy
+            JUNIT_HTML_REPORTS_TASK_NAME, filteredSubprojects
         )
 
         target.tasks.register<JUnitXMLReportsTask>(
@@ -235,7 +238,9 @@ open class jUnitReportsPlugin : Plugin<Project> {
         // 16) configure root project (only on build server)
         if (target.providers.systemProperty("BUILDSERVER").forUseAtConfigurationTime().isPresent) {
             // createJUnitMetadataFile & publishJUnitNormal & publishJUnitRC & publishJUnitResults
-            target.tasks.register<MetadataTask>(METADATA_TASK_NAME, filteredSubprojects).configure {
+            target.tasks.register<MetadataTask>(
+                METADATA_TASK_NAME, filteredSubprojects
+            ).configure {
                 // Creating "jUnit.json" depends on creating "failed_junit_tests.txt"
                 dependsOn(FAILED_JUNIT_TESTS_TASK_NAME)
 

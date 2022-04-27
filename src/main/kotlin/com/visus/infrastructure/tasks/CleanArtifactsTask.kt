@@ -66,9 +66,9 @@ abstract class CleanArtifactsTask : DefaultTask() {
     fun removeArtifacts() {
         fs.delete {
             delete(
-                "${pl.projectDirectory}/$failedJUnitTestsFileName",
-                "${pl.projectDirectory}/$metadataFileName",
-                "${pl.projectDirectory}/$zipFileName"
+                "${pl.projectDirectory.asFile.absolutePath}/$failedJUnitTestsFileName",
+                "${pl.projectDirectory.asFile.absolutePath}/$metadataFileName",
+                "${pl.projectDirectory.asFile.absolutePath}/$zipFileName"
             )
         }
     }

@@ -39,11 +39,20 @@ abstract class JUnitRESTSendTask @Inject constructor(endpointRESTURL: String, fa
         group = TASK_GROUP_PUBLISHING
         outputs.upToDateWhen { false }
 
-        // Necessary task parameters
-        commandLine = listOf(
-            "curl", "--no-progress-bar", "-F", "\"failed_junit_tests=@$failedJUnitTestsFileName\"", "-F",
-            "\"zip_file=@$zipFileName\"", "-F", "\"metadata_file=@$metadataFileName\"", "-X", "POST",
-            endpointRESTURL
-        )
+        // Necessary task parameters (depends on whether "failed_junit_tests.txt" exists as file or not)
+        with (project.file("${project.projectDir.absolutePath}/$failedJUnitTestsFileName")) {
+            if (this.exists() && this.isFile) {
+                this@JUnitRESTSendTask.commandLine = listOf(
+                    "cmd", "/C", "curl", "--no-progress-bar", "-F", "\"failed_junit_tests=@$failedJUnitTestsFileName\"",
+                    "-F", "\"zip_file=@$zipFileName\"", "-F", "\"metadata_file=@$metadataFileName\"", "-X", "POST",
+                    endpointRESTURL
+                )
+            } else {
+                this@JUnitRESTSendTask.commandLine = listOf(
+                    "cmd", "/C", "curl", "--no-progress-bar", "-F", "\"zip_file=@$zipFileName\"",
+                    "-F", "\"metadata_file=@$metadataFileName\"", "-X", "POST", endpointRESTURL
+                )
+            }
+        }
     }
 }

@@ -55,14 +55,14 @@ abstract class JUnitXMLResultsTask : DefaultTask() {
     // INFO: Don't use "$buildDir/test-results" but each "Test" task output directory instead!
     @TaskAction
     fun combineXMLResults() {
-        val input = File("${pl.buildDirectory}/test-results")
-        val output = File("${pl.buildDirectory}/jUnit/xmlresults")
-
-        input.listFiles()?.forEach { folder ->
+        // INFO: When there are test cases, then there is at least one folder inside "test-results" with one
+        //       "TEST-*.xml" file, e.g. the default "test" task!
+        File("${pl.buildDirectory.get().asFile.absolutePath}/test-results").listFiles()!!.forEach { folder ->
             if (folder.isDirectory && folder.listFiles()!!.isNotEmpty()) {
                 fs.copy {
+                    includeEmptyDirs = false
                     from(folder.absolutePath)
-                    into(output)
+                    into("${pl.buildDirectory.get().asFile.absolutePath}/jUnit/xmlresults")
                     exclude("**/binary/**")
                 }
             }

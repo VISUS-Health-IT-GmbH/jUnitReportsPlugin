@@ -118,7 +118,7 @@ abstract class JUnitRCSaveTask : DefaultTask() {
         File("$path/junit-qa").mkdirs()
 
         // copy necessary files to folders
-        with (File("${pl.projectDirectory}/$failedJUnitTestsFileName")) {
+        with (File("${pl.projectDirectory.asFile.absolutePath}/$failedJUnitTestsFileName")) {
             if (this.exists()) {
                 fs.copy {
                     from(this@with.absolutePath)
@@ -128,12 +128,12 @@ abstract class JUnitRCSaveTask : DefaultTask() {
         }
 
         fs.copy {
-            from("${pl.projectDirectory}/$metadataFileName")
+            from("${pl.projectDirectory.asFile.absolutePath}/$metadataFileName")
             into("$path/junit-qa")
         }
 
         fs.copy {
-            from("${pl.projectDirectory}/$zipFileName")
+            from("${pl.projectDirectory.asFile.absolutePath}/$zipFileName")
             into("$path/junit-qa")
         }
     }

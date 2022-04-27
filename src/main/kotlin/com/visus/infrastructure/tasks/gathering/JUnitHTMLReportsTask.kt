@@ -14,13 +14,11 @@ package com.visus.infrastructure.tasks.gathering
 
 import javax.inject.Inject
 
-import groovy.lang.Closure
-
+import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestReport
 
 import com.visus.infrastructure.tasks.TASK_GROUP_GATHERING
-import com.visus.infrastructure.util.FilteringFunction
 
 
 /** the default task name for a task of type "JUnitHTMLReportsTask" */
@@ -35,7 +33,7 @@ internal const val JUNIT_HTML_REPORTS_TASK_NAME = "gatherJUnitHTMLReports"
  *
  *  @author Tobias Hahnen
  */
-abstract class JUnitHTMLReportsTask @Inject constructor(filter: Any, filterGroovy: Boolean) : TestReport() {
+abstract class JUnitHTMLReportsTask @Inject constructor(subprojects: Set<Project>) : TestReport() {
     /** Constructor */
     init {
         // Set group and never skip but always run!
@@ -48,12 +46,7 @@ abstract class JUnitHTMLReportsTask @Inject constructor(filter: Any, filterGroov
         // Necessary task parameters
         destinationDir = project.file("${project.buildDir}/jUnit")
         this.reportOn(
-            project.subprojects.filter {
-                when (filterGroovy) {
-                    true -> (filter as Closure<*>).call(it.name) as Boolean
-                    else -> @Suppress("UNCHECKED_CAST")(filter as FilteringFunction)(it.name)
-                }
-            }.map {
+            subprojects.map {
                 it.tasks.withType(Test::class.java)
             }.flatten()
         )

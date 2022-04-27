@@ -32,7 +32,6 @@ import com.visus.infrastructure.jUnitReportsPlugin
  *  jUnit test cases on FailedJUnitTestsTask
  *
  *  TODO: Maybe evaluate failed_junit_tests.txt file after each test?
- *  TODO: Add more tests for partly correct HTML files (number of failed / ignored given but no list) with log!
  */
 open class FailedJUnitTestsTaskTest {
     companion object {

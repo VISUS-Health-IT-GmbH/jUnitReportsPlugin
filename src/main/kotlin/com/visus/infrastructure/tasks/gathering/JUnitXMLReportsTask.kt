@@ -60,7 +60,7 @@ abstract class JUnitXMLReportsTask @Inject constructor(@Internal val subprojects
         subprojects.forEach {
             fs.copy {
                 from(File("${it.buildDir}/jUnit"))
-                into(File("${pl.buildDirectory}/jUnit/projects/${it.name}"))
+                into(File("${pl.buildDirectory.get().asFile.absolutePath}/jUnit/projects/${it.name}"))
             }
         }
     }

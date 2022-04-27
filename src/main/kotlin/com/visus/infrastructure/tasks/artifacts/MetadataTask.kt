@@ -83,6 +83,7 @@ abstract class MetadataTask @Inject constructor(@Internal val subprojects: Set<P
             subprojects.map { it.name }
         ))
 
-        File("${pl.projectDirectory}/$metadataFileName").writeText(textJSON, Charset.defaultCharset())
+        File("${pl.projectDirectory.asFile.absolutePath}/$metadataFileName")
+            .writeText(textJSON, Charset.defaultCharset())
     }
 }

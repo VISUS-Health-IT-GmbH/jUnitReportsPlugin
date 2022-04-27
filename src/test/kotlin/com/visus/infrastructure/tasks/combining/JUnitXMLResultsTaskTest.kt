@@ -86,7 +86,7 @@ open class JUnitXMLResultsTaskTest {
     }
 
 
-    /** 1) Test creating task without any values */
+    /** 1) Test creating task without any values (test-results/testFolder is empty which is ok) */
     @Test fun testCreateNoValues() {
         val testFolder = File(projectTestResultsDir, "testFolder")
         testFolder.mkdirs()
@@ -109,8 +109,9 @@ open class JUnitXMLResultsTaskTest {
     }
 
 
-    /** 2) Test creating task without test values */
-    @Test fun testCreateMissingValues() {
+    /** 2) Test creating task without test values (test-results not provided) */
+    @Test(expected = NullPointerException::class)
+    fun testCreateMissingValues() {
         val project = ProjectBuilder.builder().build()
         project.tasks.register<JUnitXMLResultsTask>(JUNIT_XML_REPORTS_TASK_NAME)
 
