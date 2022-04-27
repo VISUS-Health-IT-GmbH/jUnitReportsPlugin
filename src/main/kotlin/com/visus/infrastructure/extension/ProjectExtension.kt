@@ -27,6 +27,7 @@ import com.visus.infrastructure.exception.GroovyCompatibleException
 import com.visus.infrastructure.exception.NoPropertiesProvidedException
 import com.visus.infrastructure.exception.NoPropertiesFileProvidedException
 import com.visus.infrastructure.exception.jUnitReportsPluginException
+import org.gradle.api.Incubating
 
 
 /**
@@ -141,6 +142,7 @@ internal fun <T: jUnitReportsPluginException, U: jUnitReportsPluginException> Pr
  *
  *  TODO: Add jUnit test cases!
  */
+@Incubating
 internal fun Project.hasActualJUnitTestcases() : Boolean {
     val sourceSets = this.extensions.findByType(SourceSetContainer::class.java)
 
