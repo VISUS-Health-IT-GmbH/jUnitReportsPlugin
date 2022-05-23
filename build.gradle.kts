@@ -92,3 +92,6 @@ gradlePlugin {
 
 /** 10) publish plugin to local Maven repository for integration test after creating JAR */
 tasks.jar.get().finalizedBy(tasks.getByName("publishToMavenLocal"))
+
+
+/** 11) Create fat JAR and copy for Jenkinsfile */
